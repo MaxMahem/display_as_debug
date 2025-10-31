@@ -1,3 +1,5 @@
+#![doc = include_str!("../README.md")]
+
 mod debug_as_display;
 mod display_as_debug;
 
