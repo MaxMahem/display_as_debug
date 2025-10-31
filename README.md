@@ -37,7 +37,7 @@ assert_eq!(format!("{}", test_type.display_as_debug()), "display");
 
 // Or consume the owned value
 let display_adaptor = test_type.display_to_debug();
-assert_eq!(format!("{:?}", test_type.display_to_debug()), "display");
+assert_eq!(format!("{:?}", display_adaptor), "display");
 ```
 
 The inverse adaptor, `DebugAsDisplay`, has the same API.
