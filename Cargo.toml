@@ -1,0 +1,11 @@
+[package]
+name = "display_as_debug"
+version = "1.0.0"
+edition = "2021"
+description = "Enables a rust types display implementation to be used as its debug implementation."
+repository = "https://github.com/MaxMahem/display_as_debug"
+license = "MIT OR Apache-2.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
