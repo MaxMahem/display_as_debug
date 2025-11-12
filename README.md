@@ -12,7 +12,7 @@ This is useful when a type's `Display` output is already meaningful (e.g., human
 
 ## Features
 - Borrowing and owning adaptors for using `Display` implementations as `Debug`.
-- Borrowing and owning adaptors for using `Debug` implementations as `Debug`.
+- Borrowing and owning adaptors for using `Debug` implementations as `Display`.
 - Extension methods on `Display` and `Debug`, respectively, to wrap values in these wrappers.
 
 ## Example
