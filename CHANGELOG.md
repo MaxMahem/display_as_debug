@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 11/12/2025
+
+### Added
+
+- Exposed the struct wrappers for `DisplayAsDebug` and `DebugAsDisplay` traits.
+
 ## [1.0.0] - 10/31/2025
 
 Initial release

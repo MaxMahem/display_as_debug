@@ -1,6 +1,6 @@
 [package]
 name = "display_as_debug"
-version = "1.0.0"
+version = "1.1.0"
 edition = "2021"
 description = "Enables a rust types display implementation to be used as its debug implementation."
 repository = "https://github.com/MaxMahem/display_as_debug"
