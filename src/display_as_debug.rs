@@ -28,7 +28,7 @@ use std::fmt::{Debug, Display, Formatter};
 /// assert_eq!(test_type.display_as_debug().to_string(), "display");
 /// assert_eq!(format!("{:?}", test_type.display_as_debug()), "display");
 /// ```
-pub struct AsDisplayWrapper<'a, T: Display + ?Sized>(&'a T);
+pub struct AsDisplayWrapper<'a, T: Display + ?Sized>(pub &'a T);
 
 impl<'a, T: Display> Debug for AsDisplayWrapper<'a, T> {
     /// Formats the borrowed value using its display implementation.
@@ -41,6 +41,12 @@ impl<'a, T: Display> Display for AsDisplayWrapper<'a, T> {
     /// Formats the borrowed value using its display implementation.
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         Display::fmt(&self.0, f)
+    }
+}
+
+impl<'a, T: Display + std::error::Error> std::error::Error for AsDisplayWrapper<'a, T> {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        self.0.source()
     }
 }
 
@@ -58,6 +64,12 @@ impl<T: Display> Display for DisplayWrapper<T> {
     /// Formats the owned value using its display implementation.
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         Display::fmt(&self.0, f)
+    }
+}
+
+impl<T: Display + std::error::Error> std::error::Error for DisplayWrapper<T> {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        self.0.source()
     }
 }
 

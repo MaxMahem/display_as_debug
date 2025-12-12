@@ -8,14 +8,14 @@ use std::fmt::{Debug, Display, Formatter};
 /// For an owned implementation see [`DebugWrapper`].
 pub struct AsDebugWrapper<'a, T: Debug + ?Sized>(&'a T);
 
-impl<'a, T: Debug> Display for AsDebugWrapper<'a, T> {
+impl<T: Debug> Display for AsDebugWrapper<'_, T> {
     /// Formats the borrowed value using its debug implementation.
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         Debug::fmt(&self.0, f)
     }
 }
 
-impl<'a, T: Debug> Debug for AsDebugWrapper<'a, T> {
+impl<T: Debug> Debug for AsDebugWrapper<'_, T> {
     /// Formats the borrowed value using its debug implementation.
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         Debug::fmt(&self.0, f)
