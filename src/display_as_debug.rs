@@ -51,7 +51,7 @@ impl<'a, T: Display + std::error::Error> std::error::Error for AsDisplayWrapper<
 }
 
 /// A owning type adaptor, similar to [`AsDisplayWrapper`].
-pub struct DisplayWrapper<T: Display>(T);
+pub struct DisplayWrapper<T: Display>(pub T);
 
 impl<T: Display> Debug for DisplayWrapper<T> {
     /// Formats the owned value using its display implementation.

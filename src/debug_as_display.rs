@@ -6,7 +6,7 @@ use std::fmt::{Debug, Display, Formatter};
 /// For more information see [`DebugAsDisplay`].
 ///
 /// For an owned implementation see [`DebugWrapper`].
-pub struct AsDebugWrapper<'a, T: Debug + ?Sized>(&'a T);
+pub struct AsDebugWrapper<'a, T: Debug + ?Sized>(pub &'a T);
 
 impl<T: Debug> Display for AsDebugWrapper<'_, T> {
     /// Formats the borrowed value using its debug implementation.
@@ -23,7 +23,7 @@ impl<T: Debug> Debug for AsDebugWrapper<'_, T> {
 }
 
 /// A owning type adaptor, similar to [`AsDebugWrapper`].
-pub struct DebugWrapper<T: Debug>(T);
+pub struct DebugWrapper<T: Debug>(pub T);
 
 impl<T: Debug> Display for DebugWrapper<T> {
     /// Formats the owned value using its display implementation.
