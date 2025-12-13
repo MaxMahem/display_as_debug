@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 
-use crate::as_debug::DisplayAsDebug;
+use crate::as_debug::DisplayDebug;
 
 /// A [`Option<T>`] wrapper that implements [`Debug`], displaying type names instead of values.
 ///
@@ -13,7 +13,7 @@ impl<T, E: Debug> Debug for ResultTypeDebug<'_, T, E> {
         match self.0 {
             Ok(_) => f
                 .debug_tuple("Ok")
-                .field(&std::any::type_name::<T>().display_as_debug())
+                .field(&std::any::type_name::<T>().as_debug())
                 .finish(),
             Err(e) => f.debug_tuple("Err").field(e).finish(),
         }

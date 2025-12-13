@@ -1,7 +1,7 @@
-mod as_debug_wrapper;
-mod debug_as_display;
-mod debug_wrapper;
+mod as_debug_display;
+mod debug_display;
+mod debug_displayed;
 
-pub use as_debug_wrapper::AsDebugWrapper;
-pub use debug_as_display::DebugAsDisplay;
-pub use debug_wrapper::DebugWrapper;
+pub use as_debug_display::AsDebugDisplay;
+pub use debug_display::DebugDisplay;
+pub use debug_displayed::DebugDisplayed;

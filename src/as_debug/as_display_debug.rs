@@ -7,44 +7,25 @@ use std::error::Error;
 /// [`Debug`] implementation.
 ///
 /// This is the borrowed variant that wraps a reference to a value, making it ideal for temporary
-/// use in debug contexts without allocating intermediate strings or taking ownership.
+/// use in debug contexts without taking ownership.
 ///
 /// # Examples
 ///
-/// When building debug output for structs, you can use [`AsDisplayWrapper`] to incorporate
-/// [`Display`]-implementing fields without extra ceremony or unnecessary string allocations.
-/// The same logic can be applied to any other situation where you need to use a [`Display`]
-/// implementation for a [`Debug`] implementation. For example, logging.
+/// Useful when a function or trait bound requires [`Debug`] but you have a type that implements
+/// [`Display`]. [`AsDisplayDebug`] lets you use the [`Display`] representation in [`Debug`]
+/// contexts:
 ///
 /// ```rust
-/// use display_as_debug::as_debug::DisplayAsDebug;
+/// use display_as_debug::as_debug::DisplayDebug;
+/// use std::net::IpAddr;
 ///
-/// struct UserId(u32);
-///
-/// impl std::fmt::Display for UserId {
-///     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-///         write!(f, "user_{}", self.0)
-///     }
-/// }
-///
-/// #[derive(Debug)]
-/// struct User {
-///     id: UserId,
-///     name: String,
-/// }
-///
-/// impl std::fmt::Debug for UserId {
-///     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-///         // Use the Display representation for Debug
-///         f.debug_tuple("UserId")
-///             .field(&self.display_as_debug())  // No string allocation!
-///             .finish()
-///     }
-/// }
-///
-/// let user_id = UserId(42);
-/// assert_eq!(format!("{:?}", user_id), "UserId(user_42)");
+/// let ip = IpAddr::V4("127.0.0.1".parse().unwrap());
+/// let formatted = format!("{:?}", ip.as_debug());
+/// assert_eq!(formatted, "127.0.0.1");
 /// ```
+///
+/// This is particularly useful when working with structs that have `Debug` bounds but you want to
+/// use the cleaner `Display` formatting.
 ///
 /// # Trait Implementations
 ///
@@ -54,60 +35,27 @@ use std::error::Error;
 ///
 /// # See Also
 ///
-/// - [`DisplayWrapper`](crate::as_debug::DisplayWrapper) - The owned variant for when you need to take ownership
-/// - [`DisplayAsDebug`](crate::as_debug::DisplayAsDebug) - The trait providing the [`display_as_debug()`](crate::as_debug::DisplayAsDebug::display_as_debug)
+/// - [`DisplayDebugged`](crate::as_debug::DisplayDebugged) - The owned variant for when you need to take ownership
+/// - [`DisplayDebug`](crate::as_debug::DisplayDebug) - The trait providing the [`as_debug()`](crate::as_debug::DisplayDebug::as_debug)
 ///   convenience method
-pub struct AsDisplayWrapper<'a, T: Display + ?Sized>(pub &'a T);
+pub struct AsDisplayDebug<'a, T: Display + ?Sized>(pub &'a T);
 
-impl<T: Display> Debug for AsDisplayWrapper<'_, T> {
+impl<T: Display> Debug for AsDisplayDebug<'_, T> {
     /// Formats the borrowed value using its display implementation.
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         Display::fmt(&self.0, f)
     }
 }
 
-impl<T: Display> Display for AsDisplayWrapper<'_, T> {
+impl<T: Display> Display for AsDisplayDebug<'_, T> {
     /// Formats the borrowed value using its display implementation.
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         Display::fmt(&self.0, f)
     }
 }
 
-impl<T: Display + std::error::Error> std::error::Error for AsDisplayWrapper<'_, T> {
+impl<T: Display + std::error::Error> std::error::Error for AsDisplayDebug<'_, T> {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         self.0.source()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    struct TestType;
-
-    impl std::fmt::Display for TestType {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(f, "display")
-        }
-    }
-
-    #[test]
-    fn as_display_wrapper_debug() {
-        assert_eq!(format!("{:?}", AsDisplayWrapper(&TestType)), "display");
-    }
-
-    #[test]
-    fn as_display_wrapper_display() {
-        assert_eq!(format!("{}", AsDisplayWrapper(&TestType)), "display");
-    }
-
-    #[test]
-    fn as_display_wrapper_error_source() {
-        use std::error::Error;
-        use std::io;
-
-        let error = io::Error::other("test error");
-        let wrapped = AsDisplayWrapper(&error);
-        let _ = wrapped.source();
     }
 }

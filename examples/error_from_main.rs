@@ -5,7 +5,7 @@
 //! By using `err_debug_to_display()`, we can ensure the nice `Debug` formatting is used for
 //! display instead of the default `Debug` representation.
 
-use display_as_debug::as_debug::DisplayWrapper;
+use display_as_debug::as_debug::DisplayDebugged;
 use std::fmt;
 
 /// A custom error type with a nice Display implementation
@@ -42,9 +42,9 @@ fn risky_operation() -> Result<(), AppError> {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // DisplayWrapper uses the Display implementation for Debug output.
+    // DisplayDebugged uses the Display implementation for Debug output.
     // Since the field is now public, we can construct it directly.
-    risky_operation().map_err(DisplayWrapper)?;
+    risky_operation().map_err(DisplayDebugged)?;
 
     unreachable!("Should never get here");
 }

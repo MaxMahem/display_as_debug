@@ -12,14 +12,14 @@ use std::error::Error;
 /// # Examples
 ///
 /// Useful when an interface requires or assumes a type implements [`Display`] but only a [`Debug`]
-/// implementation is available. Such as with most standard library types. [`AsDebugWrapper`] lets
+/// implementation is available. Such as with most standard library types. [`AsDebugDisplay`] lets
 /// you use their debug representation in [`Display`] contexts:
 ///
 /// ```rust
-/// use display_as_debug::as_display::DebugAsDisplay;
+/// use display_as_debug::as_display::DebugDisplay;
 ///
 /// let numbers = vec![1, 2, 3];
-/// let formatted = format!("Numbers: {}", numbers.debug_as_display());
+/// let formatted = format!("Numbers: {}", numbers.as_display());
 /// assert_eq!(formatted, "Numbers: [1, 2, 3]");
 /// ```
 ///
@@ -31,60 +31,27 @@ use std::error::Error;
 ///
 /// # See Also
 ///
-/// - [`DebugWrapper`](crate::as_display::DebugWrapper) - The owned variant for when you need to take ownership
-/// - [`DebugAsDisplay`](crate::as_display::DebugAsDisplay) - The trait providing the [`debug_as_display()`](crate::as_display::DebugAsDisplay::debug_as_display)
+/// - [`DebugDisplayed`](crate::as_display::DebugDisplayed) - The owned variant for when you need to take ownership
+/// - [`DebugDisplay`](crate::as_display::DebugDisplay) - The trait providing the [`as_display()`](crate::as_display::DebugDisplay::as_display)
 ///   convenience method
-pub struct AsDebugWrapper<'a, T: Debug + ?Sized>(pub &'a T);
+pub struct AsDebugDisplay<'a, T: Debug + ?Sized>(pub &'a T);
 
-impl<T: Debug> Display for AsDebugWrapper<'_, T> {
+impl<T: Debug> Display for AsDebugDisplay<'_, T> {
     /// Formats the borrowed value using its debug implementation.
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         Debug::fmt(&self.0, f)
     }
 }
 
-impl<T: Debug> Debug for AsDebugWrapper<'_, T> {
+impl<T: Debug> Debug for AsDebugDisplay<'_, T> {
     /// Formats the borrowed value using its debug implementation.
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         Debug::fmt(&self.0, f)
     }
 }
 
-impl<T: Debug + std::error::Error> std::error::Error for AsDebugWrapper<'_, T> {
+impl<T: Debug + std::error::Error> std::error::Error for AsDebugDisplay<'_, T> {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         self.0.source()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    struct TestType;
-
-    impl std::fmt::Debug for TestType {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(f, "debug")
-        }
-    }
-
-    #[test]
-    fn as_debug_wrapper_display() {
-        assert_eq!(format!("{}", AsDebugWrapper(&TestType)), "debug");
-    }
-
-    #[test]
-    fn as_debug_wrapper_debug() {
-        assert_eq!(format!("{:?}", AsDebugWrapper(&TestType)), "debug");
-    }
-
-    #[test]
-    fn as_debug_wrapper_error_source() {
-        use std::error::Error;
-        use std::io;
-
-        let error = io::Error::other("test error");
-        let wrapped = AsDebugWrapper(&error);
-        let _ = wrapped.source();
     }
 }

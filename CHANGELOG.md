@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
 ## [0.2.0] - 12/12/2025
 
 ### Changed
@@ -14,6 +16,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `as_display` module - for wrapping types implementing `Debug` to use their `Debug` implementation for `Display`
     - Contains: `DebugAsDisplay` trait, `AsDebugWrapper`, `DebugWrapper`
   - **Migration**: Update imports from `use display_as_debug::DisplayAsDebug` to `use display_as_debug::as_debug::DisplayAsDebug` (and similarly for other types)
+
+- **BREAKING**: Renamed traits for brevity and clarity:
+  - `DisplayAsDebug` → `DisplayDebug` 
+  - `DebugAsDisplay` → `DebugDisplay`
+- **BREAKING**: Renamed methods for conciseness:
+  - `display_as_debug()` → `as_debug()`
+  - `debug_as_display()` → `as_display()`
+  - `display_to_debug()` → `to_debug()`
+  - `debug_to_display()` → `to_display()`
+- **BREAKING**: Renamed wrapper types for consistency:
+  - `DisplayWrapper` → `DisplayDebugged` (owned Display-as-Debug)
+  - `AsDisplayWrapper` → `AsDisplayDebug` (borrowed Display-as-Debug)
+  - `DebugWrapper` → `DebugDisplayed` (owned Debug-as-Display)
+  - `AsDebugWrapper` → `AsDebugDisplay` (borrowed Debug-as-Display)
+- **Migration**: Update your code:
+  ```rust
+  // Before:
+  use display_as_debug::as_debug::{DisplayAsDebug, DisplayWrapper};
+  error.display_to_debug()
+  
+  // After:
+  use display_as_debug::as_debug::{DisplayDebug, DisplayDebugged};
+  error.to_debug()
+  ```
 
 ### Added
 

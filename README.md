@@ -13,7 +13,7 @@ This crate provides adaptors for using a type's `Display` implementation as its 
 ## Features
 
 - **Borrowing and owning adaptors** for swapping `Display` ↔ `Debug` implementations
-- **Extension traits** (`DisplayAsDebug`, `DebugAsDisplay`) providing convenient `.display_as_debug()` and `.debug_as_display()` methods
+- **Extension traits** (`DisplayDebug`, `DebugDisplay`) providing convenient `.as_debug()` and `.as_display()` methods
 - **Specialized wrappers** for `Option<T>` and `Result<T, E>` that work without requiring `T: Debug`
 - **Zero-cost abstractions** - borrowed wrappers have no runtime overhead
 - **Error trait support** - wrappers implement `std::error::Error` when appropriate
@@ -23,7 +23,7 @@ This crate provides adaptors for using a type's `Display` implementation as its 
 Basic Usage
 
 ```rust
-use display_as_debug::as_debug::DisplayAsDebug;
+use display_as_debug::as_debug::DisplayDebug;
 
 struct UserId(u32);
 
@@ -36,18 +36,18 @@ impl std::fmt::Display for UserId {
 let id = UserId(42);
 
 // Use Display implementation for Debug output
-assert_eq!(format!("{:?}", id.display_as_debug()), "user_42");
+assert_eq!(format!("{:?}", id.as_debug()), "user_42");
 
 // Still uses Display when formatting normally
-assert_eq!(format!("{}", id.display_as_debug()), "user_42");
+assert_eq!(format!("{}", id.as_debug()), "user_42");
 ```
 
 ### Returning Friendly Errors from `main()`
 
-When `main()` returns a `Result<(), E>`, Rust prints errors using their `Debug` implementation, which can be verbose and technical. Use `DisplayWrapper` to show user-friendly error messages instead:
+When `main()` returns a `Result<(), E>`, Rust prints errors using their `Debug` implementation, which can be verbose and technical. Use `DisplayDebugged` to show user-friendly error messages instead:
 
 ```rust,no_run
-use display_as_debug::as_debug::{DisplayWrapper, DisplayAsDebug};
+use display_as_debug::as_debug::{DisplayDebugged, DisplayDebug};
 use std::fmt;
 
 #[derive(Debug)]
@@ -73,7 +73,7 @@ fn risky_operation() -> Result<(), AppError> {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Wrap errors to use Display instead of Debug
-    risky_operation().map_err(|e| e.display_to_debug())?;
+    risky_operation().map_err(|e| e.to_debug())?;
     Ok(())
 }
 ```
@@ -87,7 +87,7 @@ See [examples/error_from_main.rs](examples/error_from_main.rs) for a complete wo
 Use the borrowed wrapper in your `Debug` implementations to incorporate `Display`-formatted fields without allocating strings:
 
 ```rust
-use display_as_debug::as_debug::DisplayAsDebug;
+use display_as_debug::as_debug::DisplayDebug;
 
 struct UserId(u32);
 
@@ -100,7 +100,7 @@ impl std::fmt::Display for UserId {
 impl std::fmt::Debug for UserId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_tuple("UserId")
-            .field(&self.display_as_debug())  // No string allocation!
+            .field(&self.as_debug())  // No string allocation!
             .finish()
     }
 }
@@ -111,13 +111,13 @@ assert_eq!(format!("{:?}", id), "UserId(user_42)");
 
 ### Using Debug as Display
 
-The inverse wrappers (`DebugAsDisplay`, `AsDebugWrapper`, `DebugWrapper`) let you use `Debug` implementations where `Display` is needed:
+The inverse wrappers (`DebugDisplay`, `AsDebugDisplayed`, `DebugDisplayed`) let you use `Debug` implementations where `Display` is needed:
 
 ```rust
-use display_as_debug::as_display::DebugAsDisplay;
+use display_as_debug::as_display::DebugDisplay;
 
 let numbers = vec![1, 2, 3];
-let formatted = format!("Numbers: {}", numbers.debug_as_display());
+let formatted = format!("Numbers: {}", numbers.as_display());
 assert_eq!(formatted, "Numbers: [1, 2, 3]");
 ```
 
@@ -160,3 +160,4 @@ assert_eq!(format!("{:?}", OpaqueResultDbg(&err)), "Err(\"connection failed\")")
 ```
 
 These are especially useful for logging and debugging where you want to know the state of an `Option` or `Result` without exposing potentially sensitive data.
+

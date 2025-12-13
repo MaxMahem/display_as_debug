@@ -4,14 +4,14 @@
 /// This avoids requiring `T: Debug` while still providing useful debug output.
 pub struct OptionTypeDebug<'a, T>(pub &'a Option<T>);
 
-use crate::as_debug::DisplayAsDebug;
+use crate::as_debug::DisplayDebug;
 
 impl<T> std::fmt::Debug for OptionTypeDebug<'_, T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self.0 {
             Some(_) => f
                 .debug_tuple("Some")
-                .field(&std::any::type_name::<T>().display_as_debug())
+                .field(&std::any::type_name::<T>().as_debug())
                 .finish(),
             None => f.write_str("None"),
         }

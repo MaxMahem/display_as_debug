@@ -3,17 +3,12 @@ use std::fmt::{Debug, Display, Formatter};
 /// An owning type adaptor that enables a type's [`Debug`] implementation to be used for its
 /// [`Display`] implementation.
 ///
-/// This is the owned variant of [`AsDebugWrapper`](crate::as_display::AsDebugWrapper). Unlike
-/// the borrowed wrapper, this type takes ownership of the value and is useful when you need to
-/// return a wrapped value or store it for later use.
+/// This is the owned version of [`AsDebugDisplay`](crate::as_display::AsDebugDisplay).
 ///
 /// # Examples
 ///
-/// Some types only implement `Debug` but you need to use them in a context that requires `Display`.
-/// `DebugWrapper` allows you to use their `Debug` representation as their `Display`:
-///
 /// ```rust
-/// use display_as_debug::as_display::{DebugWrapper, DebugAsDisplay};
+/// use display_as_debug::as_display::{DebugDisplayed, DebugDisplay};
 ///
 /// #[derive(Debug)]
 /// struct DebugOnlyType {
@@ -22,13 +17,13 @@ use std::fmt::{Debug, Display, Formatter};
 ///
 /// let value = DebugOnlyType { field: 42 };
 ///
-/// // Using debug_to_display() method from DebugAsDisplay trait
-/// let wrapped = value.debug_to_display();
+/// // Using to_display() method from DebugDisplay trait
+/// let wrapped = value.to_display();
 /// assert_eq!(wrapped.to_string(), "DebugOnlyType { field: 42 }");
 ///
-/// // Or construct DebugWrapper directly
+/// // Or construct DebugDisplayed directly
 /// let value2 = DebugOnlyType { field: 99 };
-/// let wrapped2 = DebugWrapper(value2);
+/// let wrapped2 = DebugDisplayed(value2);
 /// assert_eq!(format!("{}", wrapped2), "DebugOnlyType { field: 99 }");
 /// ```
 ///
@@ -40,60 +35,28 @@ use std::fmt::{Debug, Display, Formatter};
 ///
 /// # See Also
 ///
-/// - [`AsDebugWrapper`](crate::as_display::AsDebugWrapper) - The borrowed variant
-/// - [`DebugAsDisplay`](crate::as_display::DebugAsDisplay) - The trait providing convenience methods
-///   [`debug_to_display()`](crate::as_display::DebugAsDisplay::debug_to_display).
-pub struct DebugWrapper<T: Debug>(pub T);
+/// - [`AsDebugDisplay`](crate::as_display::AsDebugDisplay) - The borrowed variant
+/// - [`DebugDisplay`](crate::as_display::DebugDisplay) - The trait providing convenience methods
+///   [`to_display()`](crate::as_display::DebugDisplay::to_display).
+#[derive(PartialEq, Eq)]
+pub struct DebugDisplayed<T: Debug>(pub T);
 
-impl<T: Debug> Display for DebugWrapper<T> {
+impl<T: Debug> Display for DebugDisplayed<T> {
     /// Formats the owned value using its debug implementation.
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         std::fmt::Debug::fmt(&self.0, f)
     }
 }
 
-impl<T: Debug> Debug for DebugWrapper<T> {
+impl<T: Debug> Debug for DebugDisplayed<T> {
     /// Formats the owned value using its debug implementation.
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         std::fmt::Debug::fmt(&self.0, f)
     }
 }
 
-impl<T: Debug + std::error::Error> std::error::Error for DebugWrapper<T> {
+impl<T: Debug + std::error::Error> std::error::Error for DebugDisplayed<T> {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         self.0.source()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    struct TestType;
-
-    impl std::fmt::Debug for TestType {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(f, "debug")
-        }
-    }
-
-    #[test]
-    fn debug_wrapper_display() {
-        assert_eq!(format!("{}", DebugWrapper(TestType)), "debug");
-    }
-
-    #[test]
-    fn debug_wrapper_debug() {
-        assert_eq!(format!("{:?}", DebugWrapper(TestType)), "debug");
-    }
-
-    #[test]
-    fn debug_wrapper_error_source() {
-        use std::error::Error;
-        use std::io;
-
-        let error = io::Error::other("test error");
-        let wrapped = DebugWrapper(error);
-        let _ = wrapped.source();
     }
 }

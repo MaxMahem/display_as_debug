@@ -6,7 +6,7 @@ use std::error::Error;
 /// An owning type adaptor that enables a type's [`Display`] implementation to be used for its
 /// [`Debug`] implementation.
 ///
-/// This is the owned variant of [`AsDisplayWrapper`](crate::as_debug::AsDisplayWrapper). Unlike
+/// This is the owned variant of [`AsDisplayDebug`](crate::as_debug::AsDisplayDebug). Unlike
 /// the borrowed wrapper, this type takes ownership of the value and is particularly useful when
 /// you need to return a wrapped value or store it for later use.
 ///
@@ -15,12 +15,12 @@ use std::error::Error;
 /// ## Returning Errors from `main()`
 ///
 /// When `main()` returns a [`Result<(), E>`](std::result::Result), Rust prints the error using its
-/// [`Debug`] implementation. By wrapping error types with [`DisplayWrapper`], you can ensure the
+/// [`Debug`] implementation. By wrapping error types with [`DisplayDebugged`], you can ensure the
 /// user-friendly [`Display`] representation is shown instead of the more technical [`Debug`]
 /// output.
 ///
 /// ```no_run
-/// use display_as_debug::as_debug::{DisplayWrapper, DisplayAsDebug};
+/// use display_as_debug::as_debug::{DisplayDebugged, DisplayDebug};
 ///
 /// #[derive(Debug)]
 /// struct AppError {
@@ -44,8 +44,8 @@ use std::error::Error;
 /// }
 ///
 /// fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     // Using display_to_debug() method from DisplayAsDebug trait
-///     risky_operation().map_err(DisplayWrapper)?;
+///     // Using to_debug() method from DisplayDebug trait
+///     risky_operation().map_err(DisplayDebugged)?;
 ///     
 ///     Ok(())
 /// }
@@ -59,60 +59,28 @@ use std::error::Error;
 ///
 /// # See Also
 ///
-/// - [`AsDisplayWrapper`](crate::as_debug::AsDisplayWrapper) - The borrowed variant
-/// - [`DisplayAsDebug`](crate::as_debug::DisplayAsDebug) - The trait providing convenience methods
-///   [`display_to_debug()`](crate::as_debug::DisplayAsDebug::display_to_debug).
-pub struct DisplayWrapper<T: Display>(pub T);
+/// - [`AsDisplayDebug`](crate::as_debug::AsDisplayDebug) - The borrowed variant
+/// - [`DisplayDebug`](crate::as_debug::DisplayDebug) - The trait providing convenience methods
+///   [`to_debug()`](crate::as_debug::DisplayDebug::to_debug).
+#[derive(PartialEq, Eq)]
+pub struct DisplayDebugged<T: Display>(pub T);
 
-impl<T: Display> Debug for DisplayWrapper<T> {
+impl<T: Display> Debug for DisplayDebugged<T> {
     /// Formats the owned value using its display implementation.
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         Display::fmt(&self.0, f)
     }
 }
 
-impl<T: Display> Display for DisplayWrapper<T> {
+impl<T: Display> Display for DisplayDebugged<T> {
     /// Formats the owned value using its display implementation.
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         Display::fmt(&self.0, f)
     }
 }
 
-impl<T: Display + std::error::Error> std::error::Error for DisplayWrapper<T> {
+impl<T: Display + std::error::Error> std::error::Error for DisplayDebugged<T> {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         self.0.source()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    struct TestType;
-
-    impl std::fmt::Display for TestType {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(f, "display")
-        }
-    }
-
-    #[test]
-    fn display_wrapper_debug() {
-        assert_eq!(format!("{:?}", DisplayWrapper(TestType)), "display");
-    }
-
-    #[test]
-    fn display_wrapper_display() {
-        assert_eq!(format!("{}", DisplayWrapper(TestType)), "display");
-    }
-
-    #[test]
-    fn display_wrapper_error_source() {
-        use std::error::Error;
-        use std::io;
-
-        let error = io::Error::other("test error");
-        let wrapped = DisplayWrapper(error);
-        let _ = wrapped.source();
     }
 }

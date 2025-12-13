@@ -2,7 +2,7 @@
 //! when returning errors from main.
 //! Run with `cargo run --example error_comparison` to see the difference
 
-use display_as_debug::as_debug::DisplayAsDebug;
+use display_as_debug::as_debug::DisplayDebug;
 use std::fmt;
 
 #[derive(Debug)]
@@ -22,10 +22,10 @@ fn approach_without_wrapper() -> Result<(), Box<dyn std::error::Error>> {
     )))
 }
 
-fn approach_with_display_to_debug() -> Result<(), Box<dyn std::error::Error>> {
+fn approach_with_to_debug() -> Result<(), Box<dyn std::error::Error>> {
     let error =
         SimpleError("Application Error (Code 500): Failed to connect to database".to_string());
-    Err(Box::new(error.display_to_debug()))
+    Err(Box::new(error.to_debug()))
 }
 
 fn main() {
@@ -36,9 +36,9 @@ fn main() {
         println!("(Shows the Debug representation with struct name)\n");
     }
 
-    println!("=== With display_to_debug() ===");
-    println!("The error wrapped with display_to_debug() prints as:");
-    if let Err(e) = approach_with_display_to_debug() {
+    println!("=== With to_debug() ===");
+    println!("The error wrapped with to_debug() prints as:");
+    if let Err(e) = approach_with_to_debug() {
         println!("Error: {:?}", e);
         println!("(Shows only the Display representation - cleaner!)\n");
     }
