@@ -3,6 +3,13 @@ on:
   workflow_dispatch:
   push:
     branches: [ "master", "main" ]
+    paths:
+      - "src/**"
+      - "README.md"
+  pull_request:
+    paths:
+      - "src/**"
+      - "README.md"
 permissions:
   contents: read
   pages: write
@@ -16,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
       - name: Configure cache
