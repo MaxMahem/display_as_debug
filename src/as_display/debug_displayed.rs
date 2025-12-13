@@ -1,5 +1,8 @@
 use std::fmt::{Debug, Display, Formatter};
 
+#[cfg(doc)]
+use std::error::Error;
+
 /// An owning type adaptor that enables a type's [`Debug`] implementation to be used for its
 /// [`Display`] implementation.
 ///

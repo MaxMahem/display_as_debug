@@ -1,6 +1,12 @@
 use super::{AsDebugDisplay, DebugDisplayed};
 use std::fmt::Debug;
 
+#[cfg(doc)]
+use std::fmt::Display;
+
+#[cfg(doc)]
+use std::error::Error;
+
 /// A trait to convert a type to use its [`Debug`] implementation for [`Display`].
 pub trait DebugDisplay: Debug {
     /// Wraps a borrowed value in an adaptor that enable the values [`Debug`] implementation to be

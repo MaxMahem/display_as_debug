@@ -8,7 +8,9 @@
 
 A lightweight utility crate with wrappers that let you swap `Display` and `Debug` implementations around.
 
-This crate provides adaptors for using a type's `Display` implementation as its `Debug` implementation (and vice versa). It's useful when you need human-readable output in debug contexts, want to return friendly error messages from `main()`, or need to work with types that only implement one trait but you need the other. We've also got specialized wrappers for `Option` and `Result` types that let you control what information gets exposed during debugging.
+This crate provides adaptors for using a type's `Display` implementation as its `Debug` implementation (and vice versa). It's useful when you need human-readable output in debug contexts, want to return friendly error messages from `main()`, or need to work with types that only implement one trait but you need the other. 
+
+Also included are specialized wrappers for `Option` and `Result` types that provide a implement `Debug` for these types when the underlying type may not, or when you wish to hide the underlying type's debug implementation.
 
 ## Features
 
