@@ -1,7 +1,9 @@
 #![doc = include_str!("../README.md")]
 
-mod debug_as_display;
-mod display_as_debug;
+#[warn(clippy::pedantic)]
+#[warn(clippy::cargo)]
+pub mod as_debug;
+pub mod as_display;
 
-pub use debug_as_display::{AsDebugWrapper, DebugAsDisplay, DebugWrapper};
-pub use display_as_debug::{AsDisplayWrapper, DisplayAsDebug, DisplayWrapper};
+pub mod option;
+pub mod result;
