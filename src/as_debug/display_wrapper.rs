@@ -105,4 +105,14 @@ mod tests {
     fn display_wrapper_display() {
         assert_eq!(format!("{}", DisplayWrapper(TestType)), "display");
     }
+
+    #[test]
+    fn display_wrapper_error_source() {
+        use std::error::Error;
+        use std::io;
+
+        let error = io::Error::other("test error");
+        let wrapped = DisplayWrapper(error);
+        let _ = wrapped.source();
+    }
 }

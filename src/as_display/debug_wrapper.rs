@@ -86,4 +86,14 @@ mod tests {
     fn debug_wrapper_debug() {
         assert_eq!(format!("{:?}", DebugWrapper(TestType)), "debug");
     }
+
+    #[test]
+    fn debug_wrapper_error_source() {
+        use std::error::Error;
+        use std::io;
+
+        let error = io::Error::other("test error");
+        let wrapped = DebugWrapper(error);
+        let _ = wrapped.source();
+    }
 }
