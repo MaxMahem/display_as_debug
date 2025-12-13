@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 
-use crate::DisplayAsDebug;
+use crate::as_debug::DisplayAsDebug;
 
 /// A [`Option<T>`] wrapper that implements [`Debug`], displaying type names instead of values.
 ///
