@@ -2,10 +2,14 @@
 name = "display_as_debug"
 version = "0.2.0"
 edition = "2021"
+authors = ["Austin Stanley <maxtmahem@gmail.com>"]
 description = "Enables a rust types display implementation to be used as its debug implementation."
 repository = "https://github.com/MaxMahem/display_as_debug"
+homepage = "https://github.com/MaxMahem/display_as_debug"
+documentation = "https://MaxMahem.github.io/display_as_debug/index.html"
+readme = "README.md"
 license = "MIT OR Apache-2.0"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+keywords = ["debug", "display", "formatting", "error-handling"]
+categories = ["development-tools::debugging", "rust-patterns"]
 
 [dependencies]
