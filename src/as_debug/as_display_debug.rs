@@ -1,7 +1,5 @@
-use std::fmt::{Debug, Display, Formatter};
-
-#[cfg(doc)]
-use std::error::Error;
+use core::error::Error;
+use core::fmt::{Debug, Display, Formatter, Result};
 
 /// A borrowed type adaptor that enables a type's [`Display`] implementation to be used for its
 /// [`Debug`] implementation.
@@ -42,20 +40,20 @@ pub struct AsDisplayDebug<'a, T: Display + ?Sized>(pub &'a T);
 
 impl<T: Display> Debug for AsDisplayDebug<'_, T> {
     /// Formats the borrowed value using its display implementation.
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         Display::fmt(&self.0, f)
     }
 }
 
 impl<T: Display> Display for AsDisplayDebug<'_, T> {
     /// Formats the borrowed value using its display implementation.
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         Display::fmt(&self.0, f)
     }
 }
 
-impl<T: Display + std::error::Error> std::error::Error for AsDisplayDebug<'_, T> {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+impl<T: Display + Error> Error for AsDisplayDebug<'_, T> {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
         self.0.source()
     }
 }

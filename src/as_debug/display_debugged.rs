@@ -1,7 +1,5 @@
-use std::fmt::{Debug, Display, Formatter};
-
-#[cfg(doc)]
-use std::error::Error;
+use core::error::Error;
+use core::fmt::{Debug, Display, Formatter, Result};
 
 /// An owning type adaptor that enables a type's [`Display`] implementation to be used for its
 /// [`Debug`] implementation.
@@ -14,7 +12,7 @@ use std::error::Error;
 ///
 /// ## Returning Errors from `main()`
 ///
-/// When `main()` returns a [`Result<(), E>`](std::result::Result), Rust prints the error using its
+/// When `main()` returns a [`Result<(), E>`](core::result::Result), Rust prints the error using its
 /// [`Debug`] implementation. By wrapping error types with [`DisplayDebugged`], you can ensure the
 /// user-friendly [`Display`] representation is shown instead of the more technical [`Debug`]
 /// output.
@@ -67,20 +65,20 @@ pub struct DisplayDebugged<T: Display>(pub T);
 
 impl<T: Display> Debug for DisplayDebugged<T> {
     /// Formats the owned value using its display implementation.
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         Display::fmt(&self.0, f)
     }
 }
 
 impl<T: Display> Display for DisplayDebugged<T> {
     /// Formats the owned value using its display implementation.
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         Display::fmt(&self.0, f)
     }
 }
 
-impl<T: Display + std::error::Error> std::error::Error for DisplayDebugged<T> {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+impl<T: Display + Error> Error for DisplayDebugged<T> {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
         self.0.source()
     }
 }
