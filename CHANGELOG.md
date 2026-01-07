@@ -21,9 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING**: Renamed types to use fully spelled-out names for consistency:
   - `OpaqueResultDbg` → `OpaqueResultDebug`
   - `OpaqueOptionDbg` → `OpaqueOptionDebug`
-- **BREAKING**: Renamed extension methods to follow verb-first Rust conventions:
-  - `.opaque_debug()` → `.debug_opaque()`
-  - `.type_debug()` → `.debug_type()`
 - **MSRV**: Specified as Rust 1.85.1
 
 ## [0.2.0] - 12/12/2025
