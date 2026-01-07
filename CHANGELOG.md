@@ -1,10 +1,30 @@
+<!-- Markdownlint-disable no-duplicate-heading -->
+
 # Changelog
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.3.0] - 01/07/2026
+
+### Added
+
+- **`no_std` support**: The crate now works in `no_std` environments without any feature flags required
+- **Extension traits**: Added `OptionDebugExt` and `ResultDebugExt` traits providing ergonomic `.debug_opaque()` and `.debug_type()` methods for `Option` and `Result` types
+
+### Changed
+
+- **BREAKING**: Renamed types to use fully spelled-out names for consistency:
+  - `OpaqueResultDbg` → `OpaqueResultDebug`
+  - `OpaqueOptionDbg` → `OpaqueOptionDebug`
+- **BREAKING**: Renamed extension methods to follow verb-first Rust conventions:
+  - `.opaque_debug()` → `.debug_opaque()`
+  - `.type_debug()` → `.debug_type()`
+- **MSRV**: Specified as Rust 1.85.1
 
 ## [0.2.0] - 12/12/2025
 
@@ -18,7 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Migration**: Update imports from `use display_as_debug::DisplayAsDebug` to `use display_as_debug::as_debug::DisplayAsDebug` (and similarly for other types)
 
 - **BREAKING**: Renamed traits for brevity and clarity:
-  - `DisplayAsDebug` → `DisplayDebug` 
+  - `DisplayAsDebug` → `DisplayDebug`
   - `DebugAsDisplay` → `DebugDisplay`
 - **BREAKING**: Renamed methods for conciseness:
   - `display_as_debug()` → `as_debug()`
@@ -31,6 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `DebugWrapper` → `DebugDisplayed` (owned Debug-as-Display)
   - `AsDebugWrapper` → `AsDebugDisplay` (borrowed Debug-as-Display)
 - **Migration**: Update your code:
+
   ```rust
   // Before:
   use display_as_debug::as_debug::{DisplayAsDebug, DisplayWrapper};

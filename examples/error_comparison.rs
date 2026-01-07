@@ -17,14 +17,11 @@ impl fmt::Display for SimpleError {
 impl std::error::Error for SimpleError {}
 
 fn approach_without_wrapper() -> Result<(), Box<dyn std::error::Error>> {
-    Err(Box::new(SimpleError(
-        "Application Error (Code 500): Failed to connect to database".to_string(),
-    )))
+    Err(Box::new(SimpleError("Application Error (Code 500): Failed to connect to database".to_string())))
 }
 
 fn approach_with_to_debug() -> Result<(), Box<dyn std::error::Error>> {
-    let error =
-        SimpleError("Application Error (Code 500): Failed to connect to database".to_string());
+    let error = SimpleError("Application Error (Code 500): Failed to connect to database".to_string());
     Err(Box::new(error.to_debug()))
 }
 

@@ -1,7 +1,5 @@
-use std::fmt::{Debug, Display, Formatter};
-
-#[cfg(doc)]
-use std::error::Error;
+use core::error::Error;
+use core::fmt::{Debug, Display, Formatter, Result};
 
 /// An owning type adaptor that enables a type's [`Debug`] implementation to be used for its
 /// [`Display`] implementation.
@@ -46,20 +44,20 @@ pub struct DebugDisplayed<T: Debug>(pub T);
 
 impl<T: Debug> Display for DebugDisplayed<T> {
     /// Formats the owned value using its debug implementation.
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Debug::fmt(&self.0, f)
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        Debug::fmt(&self.0, f)
     }
 }
 
 impl<T: Debug> Debug for DebugDisplayed<T> {
     /// Formats the owned value using its debug implementation.
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Debug::fmt(&self.0, f)
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        Debug::fmt(&self.0, f)
     }
 }
 
-impl<T: Debug + std::error::Error> std::error::Error for DebugDisplayed<T> {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+impl<T: Debug + Error> Error for DebugDisplayed<T> {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
         self.0.source()
     }
 }

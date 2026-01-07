@@ -17,20 +17,13 @@ struct AppError {
 
 impl AppError {
     fn new(message: impl Into<String>, code: i32) -> Self {
-        Self {
-            message: message.into(),
-            code,
-        }
+        Self { message: message.into(), code }
     }
 }
 
 impl fmt::Display for AppError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "Application Error (Code {}): {}",
-            self.code, self.message
-        )
+        write!(f, "Application Error (Code {}): {}", self.code, self.message)
     }
 }
 
