@@ -1,24 +1,29 @@
-# display_as_debug
+# `display_as_debug`
 
 [![Build](https://github.com/MaxMahem/display_as_debug/actions/workflows/build.yml/badge.svg)](https://github.com/MaxMahem/display_as_debug/actions/workflows/build.yml)
 [![Docs](https://github.com/MaxMahem/display_as_debug/actions/workflows/docs.yml/badge.svg)](https://MaxMahem.github.io/display_as_debug/display_as_debug/index.html)
 [![dependency status](https://deps.rs/repo/github/MaxMahem/display_as_debug/status.svg)](https://deps.rs/repo/github/MaxMahem/display_as_debug)
+[![Crates.io](https://img.shields.io/crates/v/display_as_debug.svg)](https://crates.io/crates/display_as_debug)
 [![codecov](https://codecov.io/github/MaxMahem/display_as_debug/graph/badge.svg?token=JezdbWA8pp)](https://codecov.io/github/MaxMahem/display_as_debug)
 ![GitHub License](https://img.shields.io/github/license/MaxMahem/display_as_debug)
 
 A lightweight utility crate with wrappers that let you swap `Display` and `Debug` implementations around.
 
-This crate provides adaptors for using a type's `Display` implementation as its `Debug` implementation (and vice versa). It's useful when you need human-readable output in debug contexts, want to return friendly error messages from `main()`, or need to work with types that only implement one trait but you need the other. 
+This crate provides adaptors for using a type's `Display` implementation as its `Debug` implementation (and vice versa). It's useful when you need human-readable output in debug contexts, want to return friendly error messages from `main()`, or need to work with types that only implement one trait but you need the other.
 
 Also included are specialized wrappers for `Option` and `Result` types that provide a implement `Debug` for these types when the underlying type may not, or when you wish to hide the underlying type's debug implementation.
+
+This crate is `no_std` compatible and contains no `unsafe` code.
 
 ## Features
 
 - **Borrowing and owning adaptors** for swapping `Display` ↔ `Debug` implementations
 - **Extension traits** (`DisplayDebug`, `DebugDisplay`) providing convenient `.as_debug()` and `.as_display()` methods
 - **Specialized wrappers** for `Option<T>` and `Result<T, E>` that work without requiring `T: Debug`
-- **Zero-cost abstractions** - borrowed wrappers have no runtime overhead
-- **Error trait support** - wrappers implement `std::error::Error` when appropriate
+
+## Installation
+
+It's on [crates.io](https://crates.io/crates/display_as_debug).
 
 ## Examples
 
@@ -132,14 +137,14 @@ For situations where you need to debug `Option` or `Result` types but don't want
 Show the type name instead of the actual value:
 
 ```rust
-use display_as_debug::option::OptionTypeDebug;
-use display_as_debug::result::ResultTypeDebug;
+use display_as_debug::option::OptionDebugExt;
+use display_as_debug::result::ResultDebugExt;
 
 let opt = Some(42);
-assert_eq!(format!("{:?}", OptionTypeDebug(&opt)), "Some(i32)");
+assert_eq!(format!("{:?}", opt.debug_type()), "Some(i32)");
 
 let res: Result<String, i32> = Ok("secret".to_string());
-assert_eq!(format!("{:?}", ResultTypeDebug(&res)), "Ok(alloc::string::String)");
+assert_eq!(format!("{:?}", res.debug_type()), "Ok(alloc::string::String)");
 ```
 
 ### Opaque Wrappers
@@ -147,19 +152,31 @@ assert_eq!(format!("{:?}", ResultTypeDebug(&res)), "Ok(alloc::string::String)");
 Hide the value completely while preserving the variant information:
 
 ```rust
-use display_as_debug::option::OpaqueOptionDbg;
-use display_as_debug::result::OpaqueResultDbg;
+use display_as_debug::option::OptionDebugExt;
+use display_as_debug::result::ResultDebugExt;
 
 let opt = Some("sensitive data");
-assert_eq!(format!("{:?}", OpaqueOptionDbg(&opt)), "Some(..)");
+assert_eq!(format!("{:?}", opt.debug_opaque()), "Some(..)");
 
 let res: Result<&str, &str> = Ok("secret");
-assert_eq!(format!("{:?}", OpaqueResultDbg(&res)), "Ok(...)");
+assert_eq!(format!("{:?}", res.debug_opaque()), "Ok(...)");
 
 // Errors are still shown for debugging
 let err: Result<&str, &str> = Err("connection failed");
-assert_eq!(format!("{:?}", OpaqueResultDbg(&err)), "Err(\"connection failed\")");
+assert_eq!(format!("{:?}", err.debug_opaque()), "Err(\"connection failed\")");
+```
+
+**Alternative:** You can also construct the wrapper types directly if you prefer:
+
+```rust
+use display_as_debug::option::OptionTypeDebug;
+use display_as_debug::result::OpaqueResultDebug;
+
+let opt = Some(42);
+assert_eq!(format!("{:?}", OptionTypeDebug(&opt)), "Some(i32)");
+
+let res: Result<&str, &str> = Ok("secret");
+assert_eq!(format!("{:?}", OpaqueResultDebug(&res)), "Ok(...)");
 ```
 
 These are especially useful for logging and debugging where you want to know the state of an `Option` or `Result` without exposing potentially sensitive data.
-

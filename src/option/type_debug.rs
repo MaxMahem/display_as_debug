@@ -6,33 +6,14 @@ pub struct OptionTypeDebug<'a, T>(pub &'a Option<T>);
 
 use crate::as_debug::DisplayDebug;
 
-impl<T> std::fmt::Debug for OptionTypeDebug<'_, T> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl<T> core::fmt::Debug for OptionTypeDebug<'_, T> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self.0 {
             Some(_) => f
                 .debug_tuple("Some")
-                .field(&std::any::type_name::<T>().as_debug())
+                .field(&core::any::type_name::<T>().as_debug())
                 .finish(),
             None => f.write_str("None"),
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn debug_option_none() {
-        let opt: Option<i32> = None;
-        let debug_output = format!("{:?}", OptionTypeDebug(&opt));
-        assert_eq!(debug_output, "None");
-    }
-
-    #[test]
-    fn debug_option_some() {
-        let opt = Some(42);
-        let debug_output = format!("{:?}", OptionTypeDebug(&opt));
-        assert_eq!(debug_output, "Some(i32)");
     }
 }
