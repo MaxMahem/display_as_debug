@@ -1,37 +1,19 @@
 use super::{OpaqueOptionDebug, OptionTypeDebug};
+use crate::type_name::DisplayMode;
 
 /// Extension trait providing convenience methods for debugging [`Option`] values.
-///
-/// This trait is automatically implemented for all [`Option`] types and provides ergonomic
-/// access to the various debug wrappers without needing to construct them manually.
-///
-/// # Examples
-///
-/// ```rust
-/// use display_as_debug::option::OptionDebugExt;
-///
-/// let opt = Some(42);
-///
-/// // Using the extension methods
-/// assert_eq!(format!("{:?}", opt.debug_opaque()), "Some(..)");
-/// assert_eq!(format!("{:?}", opt.debug_type()), "Some(i32)");
-/// ```
 pub trait OptionDebugExt<T> {
-    /// Returns a wrapper that implements [`Debug`] with opaque Some values.
+    /// Returns a wrapper that implements [`Debug`] with opaque [`Some`] values.
     ///
     /// Displays as `Some(..)` when the option is [`Some`], or `None` when [`None`].
-    /// This provides privacy for Some values while still indicating the option's state.
+    /// This provides privacy for [`Some`] values while still indicating the option's state.
     ///
     /// # Examples
     ///
     /// ```rust
-    /// use display_as_debug::option::OptionDebugExt;
-    ///
-    /// let opt = Some("sensitive data");
-    /// assert_eq!(format!("{:?}", opt.debug_opaque()), "Some(..)");
-    ///
-    /// let none: Option<&str> = None;
-    /// assert_eq!(format!("{:?}", none.debug_opaque()), "None");
+    /// # use display_as_debug::option::OptionDebugExt;
+    /// assert_eq!(format!("{:?}", Some("sensitive data").debug_opaque()), "Some(..)");
+    /// assert_eq!(format!("{:?}", None::<&str>.debug_opaque()), "None");
     /// ```
     fn debug_opaque(&self) -> OpaqueOptionDebug<'_, T>;
 
@@ -40,18 +22,20 @@ pub trait OptionDebugExt<T> {
     /// Displays as `"None"` when the option is [`None`], or `"Some(typename)"` when [`Some`].
     /// This avoids requiring `T: Debug` while still providing useful debug output.
     ///
+    /// The display mode ([`Full`](crate::type_name::Full) or [`Short`](crate::type_name::Short)) must be
+    /// specified as a generic argument.
+    ///
     /// # Examples
     ///
     /// ```rust
     /// use display_as_debug::option::OptionDebugExt;
+    /// use display_as_debug::type_name::{Full, Short};
     ///
-    /// let opt = Some(42);
-    /// assert_eq!(format!("{:?}", opt.debug_type()), "Some(i32)");
-    ///
-    /// let none: Option<i32> = None;
-    /// assert_eq!(format!("{:?}", none.debug_type()), "None");
+    /// assert_eq!(format!("{:?}", Some(vec![1]).debug_type::<Full>()), "Some(alloc::vec::Vec<i32>)");
+    /// assert_eq!(format!("{:?}", Some(vec![1]).debug_type::<Short>()), "Some(Vec<i32>)");
+    /// assert_eq!(format!("{:?}", None::<i32>.debug_type::<Full>()), "None");
     /// ```
-    fn debug_type(&self) -> OptionTypeDebug<'_, T>;
+    fn debug_type<M: DisplayMode>(&self) -> OptionTypeDebug<'_, T, M>;
 }
 
 impl<T> OptionDebugExt<T> for Option<T> {
@@ -59,7 +43,7 @@ impl<T> OptionDebugExt<T> for Option<T> {
         OpaqueOptionDebug(self)
     }
 
-    fn debug_type(&self) -> OptionTypeDebug<'_, T> {
-        OptionTypeDebug(self)
+    fn debug_type<M: DisplayMode>(&self) -> OptionTypeDebug<'_, T, M> {
+        OptionTypeDebug::new::<M>(self)
     }
 }

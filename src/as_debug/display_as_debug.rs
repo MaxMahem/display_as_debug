@@ -10,16 +10,16 @@ use core::fmt::{Debug, Display, Formatter, Result};
 /// # Examples
 ///
 /// Useful when a function or trait bound requires [`Debug`] but you have a type that implements
-/// [`Display`]. [`AsDisplayDebug`] lets you use the [`Display`] representation in [`Debug`]
+/// [`Display`]. [`DisplayAsDebug`] lets you use the [`Display`] representation in [`Debug`]
 /// contexts:
 ///
 /// ```rust
-/// use display_as_debug::as_debug::DisplayDebug;
+/// use display_as_debug::as_debug::DisplayAsDebug;
 /// use std::net::IpAddr;
 ///
 /// let ip = IpAddr::V4("127.0.0.1".parse().unwrap());
-/// let formatted = format!("{:?}", ip.as_debug());
-/// assert_eq!(formatted, "127.0.0.1");
+/// assert_eq!(format!("{:?}", DisplayAsDebug(&ip)), "127.0.0.1", "display used for debug");
+/// assert_eq!(format!("{}", DisplayAsDebug(&ip)), "127.0.0.1", "display unchanged");
 /// ```
 ///
 /// This is particularly useful when working with structs that have `Debug` bounds but you want to
@@ -30,29 +30,23 @@ use core::fmt::{Debug, Display, Formatter, Result};
 /// - **[`Debug`]**: Uses the borrowed value's [`Display`] implementation
 /// - **[`Display`]**: Forwards to the borrowed value's [`Display`] implementation
 /// - **[`Error`]**: Implements [`Error`] if the borrowed type implements both [`Display`] and [`Error`]
-///
-/// # See Also
-///
-/// - [`DisplayDebugged`](crate::as_debug::DisplayDebugged) - The owned variant for when you need to take ownership
-/// - [`DisplayDebug`](crate::as_debug::DisplayDebug) - The trait providing the [`as_debug()`](crate::as_debug::DisplayDebug::as_debug)
-///   convenience method
-pub struct AsDisplayDebug<'a, T: Display + ?Sized>(pub &'a T);
+pub struct DisplayAsDebug<'a, T: Display + ?Sized>(pub &'a T);
 
-impl<T: Display> Debug for AsDisplayDebug<'_, T> {
+impl<T: Display> Debug for DisplayAsDebug<'_, T> {
     /// Formats the borrowed value using its display implementation.
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         Display::fmt(&self.0, f)
     }
 }
 
-impl<T: Display> Display for AsDisplayDebug<'_, T> {
+impl<T: Display> Display for DisplayAsDebug<'_, T> {
     /// Formats the borrowed value using its display implementation.
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         Display::fmt(&self.0, f)
     }
 }
 
-impl<T: Display + Error> Error for AsDisplayDebug<'_, T> {
+impl<T: Display + Error> Error for DisplayAsDebug<'_, T> {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         self.0.source()
     }

@@ -22,7 +22,7 @@ fn approach_without_wrapper() -> Result<(), Box<dyn std::error::Error>> {
 
 fn approach_with_to_debug() -> Result<(), Box<dyn std::error::Error>> {
     let error = SimpleError("Application Error (Code 500): Failed to connect to database".to_string());
-    Err(Box::new(error.to_debug()))
+    Err(Box::new(error.wrap_display_as_debug()))
 }
 
 fn main() {
