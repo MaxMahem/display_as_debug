@@ -20,6 +20,8 @@ This crate is `no_std` compatible and contains no `unsafe` code.
 - **Borrowing and owning adaptors** for swapping `Display` ↔ `Debug` implementations
 - **Extension traits** (`DisplayDebug`, `DebugDisplay`) providing convenient `.as_debug()` and `.as_display()` methods
 - **Specialized wrappers** for `Option<T>` and `Result<T, E>` that work without requiring `T: Debug`
+- **Type name adaptors** (`Full`, `Short`) for showing full or short type names
+- **DebugTuple and DebugStruct extensions** for conveniently formatting tuple and struct fields
 
 ## Installation
 
@@ -43,10 +45,10 @@ impl std::fmt::Display for UserId {
 let id = UserId(42);
 
 // Use Display implementation for Debug output
-assert_eq!(format!("{:?}", id.as_debug()), "user_42");
+assert_eq!(format!("{:?}", id.display_as_debug()), "user_42");
 
 // Still uses Display when formatting normally
-assert_eq!(format!("{}", id.as_debug()), "user_42");
+assert_eq!(format!("{}", id.display_as_debug()), "user_42");
 ```
 
 ### Returning Friendly Errors from `main()`
@@ -80,7 +82,7 @@ fn risky_operation() -> Result<(), AppError> {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Wrap errors to use Display instead of Debug
-    risky_operation().map_err(|e| e.to_debug())?;
+    risky_operation().map_err(|e| e.wrap_display_as_debug())?;
     Ok(())
 }
 ```
@@ -89,31 +91,40 @@ Instead of seeing `AppError { message: "database connection failed", code: 500 }
 
 See [examples/error_from_main.rs](examples/error_from_main.rs) for a complete working example.
 
-### Debug Implementations with Display Fields
+## Structure and Tuple Extensions
 
-Use the borrowed wrapper in your `Debug` implementations to incorporate `Display`-formatted fields without allocating strings:
+The `DebugStructExt` and `DebugTupleExt` extension traits provide a cleaner API for implementing `Debug` manually:
 
 ```rust
-use display_as_debug::as_debug::DisplayDebug;
+use display_as_debug::{DebugStructExt, DebugTupleExt};
+use display_as_debug::type_name::{Short, Full};
 
-struct UserId(u32);
-
-impl std::fmt::Display for UserId {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "user_{}", self.0)
-    }
+struct Secret {
+    id: u32,
+    key: String,
+    payload: Vec<u8>,
 }
 
-impl std::fmt::Debug for UserId {
+impl std::fmt::Debug for Secret {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_tuple("UserId")
-            .field(&self.as_debug())  // No string allocation!
+        f.debug_struct("Secret")
+            .field_display("id", &self.id)        // Use Display impl
+            .field_opaque("key")                  // Hide value: "key: .."
+            .field_type::<Vec<u8>, Short>("payload") // Show type: "payload: Vec<u8>"
             .finish()
     }
 }
 
-let id = UserId(42);
-assert_eq!(format!("{:?}", id), "UserId(user_42)");
+struct Wrapper<T>(T);
+
+impl<T> std::fmt::Debug for Wrapper<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_tuple("Wrapper")
+            .field_type::<T, Full>()  // Show full type path
+            .field_opaque()           // Tuple opaque field
+            .finish()
+    }
+}
 ```
 
 ### Using Debug as Display
@@ -124,7 +135,7 @@ The inverse wrappers (`DebugDisplay`, `AsDebugDisplayed`, `DebugDisplayed`) let 
 use display_as_debug::as_display::DebugDisplay;
 
 let numbers = vec![1, 2, 3];
-let formatted = format!("Numbers: {}", numbers.as_display());
+let formatted = format!("Numbers: {}", numbers.debug_as_display());
 assert_eq!(formatted, "Numbers: [1, 2, 3]");
 ```
 
@@ -139,12 +150,14 @@ Show the type name instead of the actual value:
 ```rust
 use display_as_debug::option::OptionDebugExt;
 use display_as_debug::result::ResultDebugExt;
+use display_as_debug::type_name::{Full, Short};
 
 let opt = Some(42);
-assert_eq!(format!("{:?}", opt.debug_type()), "Some(i32)");
+assert_eq!(format!("{:?}", opt.debug_type::<Full>()), "Some(i32)");
 
 let res: Result<String, i32> = Ok("secret".to_string());
-assert_eq!(format!("{:?}", res.debug_type()), "Ok(alloc::string::String)");
+assert_eq!(format!("{:?}", res.debug_type::<Full>()), "Ok(alloc::string::String)");
+assert_eq!(format!("{:?}", res.debug_type::<Short>()), "Ok(String)");
 ```
 
 ### Opaque Wrappers
@@ -159,24 +172,11 @@ let opt = Some("sensitive data");
 assert_eq!(format!("{:?}", opt.debug_opaque()), "Some(..)");
 
 let res: Result<&str, &str> = Ok("secret");
-assert_eq!(format!("{:?}", res.debug_opaque()), "Ok(...)");
+assert_eq!(format!("{:?}", res.debug_opaque()), "Ok(..)");
 
 // Errors are still shown for debugging
 let err: Result<&str, &str> = Err("connection failed");
 assert_eq!(format!("{:?}", err.debug_opaque()), "Err(\"connection failed\")");
-```
-
-**Alternative:** You can also construct the wrapper types directly if you prefer:
-
-```rust
-use display_as_debug::option::OptionTypeDebug;
-use display_as_debug::result::OpaqueResultDebug;
-
-let opt = Some(42);
-assert_eq!(format!("{:?}", OptionTypeDebug(&opt)), "Some(i32)");
-
-let res: Result<&str, &str> = Ok("secret");
-assert_eq!(format!("{:?}", OpaqueResultDebug(&res)), "Ok(...)");
 ```
 
 These are especially useful for logging and debugging where you want to know the state of an `Option` or `Result` without exposing potentially sensitive data.

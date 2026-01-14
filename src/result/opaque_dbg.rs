@@ -1,4 +1,6 @@
-use core::fmt::Debug;
+use core::fmt::{Debug, Formatter};
+
+use crate::Opaque;
 
 /// A [`Result<T, E>`] wrapper that implements [`Debug`] with opaque Ok values.
 ///
@@ -7,9 +9,9 @@ use core::fmt::Debug;
 pub struct OpaqueResultDebug<'a, T, E>(pub &'a Result<T, E>);
 
 impl<T, E: Debug> Debug for OpaqueResultDebug<'_, T, E> {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         match self.0 {
-            Ok(_) => f.write_str("Ok(...)"),
+            Ok(_) => f.debug_tuple("Ok").field(&Opaque).finish(),
             Err(e) => f.debug_tuple("Err").field(e).finish(),
         }
     }

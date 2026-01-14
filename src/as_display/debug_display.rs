@@ -1,4 +1,4 @@
-use super::{AsDebugDisplay, DebugDisplayed};
+use super::{DebugAsDisplay, DebugDisplayed};
 use core::fmt::Debug;
 
 #[cfg(doc)]
@@ -12,42 +12,30 @@ pub trait DebugDisplay: Debug {
     /// Wraps a borrowed value in an adaptor that enable the values [`Debug`] implementation to be
     /// used for its [`Display`] implementation.
     ///
-    /// See [`AsDebugDisplay`] for more information.
-    ///
     /// # Examples
     ///
     /// ```rust
-    /// use display_as_debug::as_display::DebugDisplay;
-    ///
-    /// let numbers = vec![1, 2, 3];
-    /// // debug implementation is used for display
-    /// assert_eq!(format!("{}", numbers.as_display()), "[1, 2, 3]");
-    ///
-    /// // debug implementation is still used for debug
-    /// assert_eq!(format!("{:?}", numbers.as_display()), "[1, 2, 3]");
+    /// # use display_as_debug::as_display::DebugDisplay;
+    /// assert_eq!(format!("{}", vec![1].debug_as_display()), "[1]", "display unchanged");
+    /// assert_eq!(format!("{:?}", vec![1].debug_as_display()), "[1]", "debug used for debug");
     /// ```
-    fn as_display(&'_ self) -> AsDebugDisplay<'_, Self> {
-        AsDebugDisplay(self)
+    fn debug_as_display(&'_ self) -> DebugAsDisplay<'_, Self> {
+        DebugAsDisplay(self)
     }
 
     /// Wraps a owned value in an adaptor that enable the values [`Debug`] implementation to be
     /// used for its [`Display`] implementation.
     ///
-    /// If ownership is not necessary, favor [`DebugDisplay::as_display`].
-    /// See [`DebugDisplayed`] for more information.
+    /// If ownership is not necessary, favor [`DebugDisplay::debug_as_display`].
     ///
     /// # Examples
     ///
     /// ```rust
-    /// use display_as_debug::as_display::DebugDisplay;
-    ///
-    /// let numbers = vec![1, 2, 3];
-    /// assert_eq!(format!("{}", numbers.clone().to_display()), "[1, 2, 3]");
-    ///
-    /// // borrowed value's debug implementation is still used for debug
-    /// assert_eq!(format!("{:?}", numbers.clone().to_display()), "[1, 2, 3]");
+    /// # use display_as_debug::as_display::DebugDisplay;
+    /// assert_eq!(format!("{:?}", vec![1].clone().wrap_debug_as_display()), "[1]", "debug used for debug");
+    /// assert_eq!(format!("{}", vec![1].clone().wrap_debug_as_display()), "[1]", "display unchanged");
     /// ```
-    fn to_display(self) -> DebugDisplayed<Self>
+    fn wrap_debug_as_display(self) -> DebugDisplayed<Self>
     where
         Self: Sized,
     {

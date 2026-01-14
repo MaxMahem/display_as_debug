@@ -1,15 +1,35 @@
+use core::fmt::{Debug, Formatter};
+use core::marker::PhantomData;
+
+use crate::type_name::{DisplayMode, Full, TypeName};
+
 /// A [`Option<T>`] wrapper that implements [`Debug`], displaying type names instead of values.
 ///
 /// Displays as `"None"` when the option is [`None`], or `"Some(typename)"` when [`Some`].
 /// This avoids requiring `T: Debug` while still providing useful debug output.
-pub struct OptionTypeDebug<'a, T>(pub &'a Option<T>);
+///
+/// The `M` type parameter controls whether [`Full`](crate::type_name::Full) or [`Short`](crate::type_name::Short)
+/// type names are displayed.
+#[derive(Copy, Clone)]
+pub struct OptionTypeDebug<'a, T, M: DisplayMode = Full> {
+    inner: &'a Option<T>,
+    _marker: PhantomData<M>,
+}
 
-use crate::as_debug::DisplayDebug;
+impl<'a, T> OptionTypeDebug<'a, T> {
+    /// Create a new `OptionTypeDebug` wrapper.
+    pub const fn new<M: DisplayMode>(option: &'a Option<T>) -> OptionTypeDebug<'a, T, M> {
+        OptionTypeDebug { inner: option, _marker: PhantomData }
+    }
+}
 
-impl<T> core::fmt::Debug for OptionTypeDebug<'_, T> {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        match self.0 {
-            Some(_) => f.debug_tuple("Some").field(&core::any::type_name::<T>().as_debug()).finish(),
+impl<T, M: DisplayMode> Debug for OptionTypeDebug<'_, T, M>
+where
+    TypeName<T, M>: Debug,
+{
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
+        match self.inner {
+            Some(_) => f.debug_tuple("Some").field(&TypeName::<T, M>::default()).finish(),
             None => f.write_str("None"),
         }
     }

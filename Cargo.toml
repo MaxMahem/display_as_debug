@@ -1,6 +1,6 @@
 [package]
 name = "display_as_debug"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2024"
 rust-version = "1.85.1"
 authors = ["Austin Stanley <maxtmahem@gmail.com>"]
@@ -14,3 +14,4 @@ keywords = ["debug", "display", "formatting", "error-handling"]
 categories = ["development-tools::debugging", "rust-patterns"]
 
 [dependencies]
+sealed = "0.6.0"

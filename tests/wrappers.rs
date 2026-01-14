@@ -54,17 +54,17 @@ mod debug_display {
     use super::*;
     use display_as_debug::as_display::DebugDisplay;
 
-    test_fmt!(borrowed, Error::other(ERROR_MSG).as_display(), "{}", EXPECTED_DEBUG);
-    test_fmt!(owned, Error::other(ERROR_MSG).to_display(), "{}", EXPECTED_DEBUG);
+    test_fmt!(borrowed, Error::other(ERROR_MSG).debug_as_display(), "{}", EXPECTED_DEBUG);
+    test_fmt!(owned, Error::other(ERROR_MSG).wrap_debug_as_display(), "{}", EXPECTED_DEBUG);
 }
 
 mod as_debug_display {
     use super::*;
-    use display_as_debug::as_display::AsDebugDisplay;
+    use display_as_debug::as_display::DebugAsDisplay;
 
-    test_fmt!(display, AsDebugDisplay(&Error::other(ERROR_MSG)), "{}", EXPECTED_DEBUG);
-    test_fmt!(debug, AsDebugDisplay(&Error::other(ERROR_MSG)), "{:?}", EXPECTED_DEBUG);
-    test_source!(borrow AsDebugDisplay);
+    test_fmt!(display, DebugAsDisplay(&Error::other(ERROR_MSG)), "{}", EXPECTED_DEBUG);
+    test_fmt!(debug, DebugAsDisplay(&Error::other(ERROR_MSG)), "{:?}", EXPECTED_DEBUG);
+    test_source!(borrow DebugAsDisplay);
 }
 
 mod display_debugged {
@@ -80,15 +80,15 @@ mod display_debug {
     use super::*;
     use display_as_debug::as_debug::DisplayDebug;
 
-    test_fmt!(borrowed, Error::other(ERROR_MSG).as_debug(), "{}", EXPECTED_DISPLAY);
-    test_fmt!(owned, Error::other(ERROR_MSG).to_debug(), "{}", EXPECTED_DISPLAY);
+    test_fmt!(borrowed, Error::other(ERROR_MSG).display_as_debug(), "{}", EXPECTED_DISPLAY);
+    test_fmt!(owned, Error::other(ERROR_MSG).wrap_display_as_debug(), "{}", EXPECTED_DISPLAY);
 }
 
 mod as_display_debug {
     use super::*;
-    use display_as_debug::as_debug::AsDisplayDebug;
+    use display_as_debug::as_debug::DisplayAsDebug;
 
-    test_fmt!(display, AsDisplayDebug(&std::io::Error::other(ERROR_MSG)), "{}", EXPECTED_DISPLAY);
-    test_fmt!(debug, AsDisplayDebug(&std::io::Error::other(ERROR_MSG)), "{:?}", EXPECTED_DISPLAY);
-    test_source!(borrow AsDisplayDebug);
+    test_fmt!(display, DisplayAsDebug(&std::io::Error::other(ERROR_MSG)), "{}", EXPECTED_DISPLAY);
+    test_fmt!(debug, DisplayAsDebug(&std::io::Error::other(ERROR_MSG)), "{:?}", EXPECTED_DISPLAY);
+    test_source!(borrow DisplayAsDebug);
 }

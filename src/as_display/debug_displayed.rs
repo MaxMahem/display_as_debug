@@ -4,28 +4,12 @@ use core::fmt::{Debug, Display, Formatter, Result};
 /// An owning type adaptor that enables a type's [`Debug`] implementation to be used for its
 /// [`Display`] implementation.
 ///
-/// This is the owned version of [`AsDebugDisplay`](crate::as_display::AsDebugDisplay).
-///
 /// # Examples
 ///
 /// ```rust
-/// use display_as_debug::as_display::{DebugDisplayed, DebugDisplay};
-///
-/// #[derive(Debug)]
-/// struct DebugOnlyType {
-///     field: i32,
-/// }
-///
-/// let value = DebugOnlyType { field: 42 };
-///
-/// // Using to_display() method from DebugDisplay trait
-/// let wrapped = value.to_display();
-/// assert_eq!(wrapped.to_string(), "DebugOnlyType { field: 42 }");
-///
-/// // Or construct DebugDisplayed directly
-/// let value2 = DebugOnlyType { field: 99 };
-/// let wrapped2 = DebugDisplayed(value2);
-/// assert_eq!(format!("{}", wrapped2), "DebugOnlyType { field: 99 }");
+/// # use display_as_debug::as_display::DebugDisplayed;
+/// assert_eq!(format!("{}", DebugDisplayed(vec![1])), "[1]", "debug used for display");
+/// assert_eq!(format!("{:?}", DebugDisplayed(vec![2])), "[2]", "debug unchanged");
 /// ```
 ///
 /// # Trait Implementations
@@ -33,12 +17,6 @@ use core::fmt::{Debug, Display, Formatter, Result};
 /// - **[`Display`]**: Uses the wrapped value's [`Debug`] implementation
 /// - **[`Debug`]**: Forwards to the wrapped value's [`Debug`] implementation
 /// - **[`Error`]**: Implements [`Error`] if the wrapped type implements both [`Debug`] and [`Error`]
-///
-/// # See Also
-///
-/// - [`AsDebugDisplay`](crate::as_display::AsDebugDisplay) - The borrowed variant
-/// - [`DebugDisplay`](crate::as_display::DebugDisplay) - The trait providing convenience methods
-///   [`to_display()`](crate::as_display::DebugDisplay::to_display).
 #[derive(PartialEq, Eq)]
 pub struct DebugDisplayed<T: Debug>(pub T);
 

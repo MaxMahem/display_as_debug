@@ -9,6 +9,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 01/14/2026
+
+### Added
+
+- **`Opaque` type**: Introduced `Opaque` type for obscuring values, showing `".."` for privacy.
+- **`TypeName` type**: Introduced `TypeName` type for showing type names using the specified `DisplayMode`.
+  - **`DisplayMode` trait**: Introduced `DisplayMode` trait with `Full` and `Short` implementations to control type name formatting.
+- **`DebugTupleExt` trait**: Extension trait for `core::fmt::DebugTuple` providing convenient field formatting methods:
+  - `field_display()` - Uses the `Display` implementation for a field value
+  - `field_type()` - Shows the value's type name using the specified `DisplayMode` (e.g., `field_type::<T, Full>("name")`)
+  - `field_opaque()` - Obscures the value, showing `".."` for privacy
+- **`DebugStructExt` trait**: Extension trait for `core::fmt::DebugStruct` providing convenient field formatting methods:
+  - `field_display()` - Uses the `Display` implementation for a field value
+  - `field_type()` - Shows the value's type name using the specified `DisplayMode` (e.g., `field_type::<T, Full>("name")`)
+  - `field_opaque()` - Obscures the value, showing `".."` for privacy
+
+### Changed
+
+- **BREAKING**: `OptionDebugExt::debug_type` and `ResultDebugExt::debug_type` are now generic over `DisplayMode`. You must specify the mode (e.g., `.debug_type::<Full>()`).
+- **BREAKING**: Renamed methods for clarity and consistency:
+  - `as_debug()` → `display_as_debug()`
+  - `as_display()` → `debug_as_display()`
+  - `to_debug()` → `wrap_display_as_debug()`
+  - `to_display()` → `wrap_debug_as_display()`
+  - `AsDebugDisplay` → `DebugAsDisplay`
+  - `AsDisplayDebug` → `DisplayAsDebug`
+
 ## [0.3.0] - 01/07/2026
 
 ### Added
