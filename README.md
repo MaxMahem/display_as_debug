@@ -21,7 +21,7 @@ This crate is `no_std` compatible and contains no `unsafe` code.
 - **Extension traits** (`DisplayDebug`, `DebugDisplay`) providing convenient `.as_debug()` and `.as_display()` methods
 - **Specialized wrappers** for `Option<T>` and `Result<T, E>` that work without requiring `T: Debug`
 - **Type name adaptors** (`Full`, `Short`) for showing full or short type names
-- **DebugTuple and DebugStruct extensions** for conveniently formatting tuple and struct fields
+- **`DebugTuple` and `DebugStruct` extensions** for conveniently formatting tuple and struct fields
 
 ## Installation
 
