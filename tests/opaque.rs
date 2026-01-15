@@ -1,6 +1,6 @@
 mod common;
 
-use display_as_debug::Opaque;
+use display_as_debug::types::Opaque;
 
 use crate::common::*;
 

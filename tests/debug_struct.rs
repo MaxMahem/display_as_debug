@@ -1,7 +1,7 @@
 use core::fmt::{Debug, Display, Formatter};
 
-use display_as_debug::DebugStructExt;
-use display_as_debug::type_name::{Full, Short};
+use display_as_debug::fmt::DebugStructExt;
+use display_as_debug::types::{Full, Short};
 
 #[test]
 fn field_display() {

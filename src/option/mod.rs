@@ -1,7 +1,7 @@
 mod extension;
-mod opaque_dbg;
+mod opaque_option;
 mod type_debug;
 
 pub use extension::OptionDebugExt;
-pub use opaque_dbg::OpaqueOptionDebug;
-pub use type_debug::OptionTypeDebug;
+pub use opaque_option::OpaqueOption;
+pub use type_debug::TypeNameOption;

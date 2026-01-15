@@ -13,11 +13,11 @@ use crate::common::*;
 const ERROR_MSG: &str = "test error";
 
 /// The expected Debug representation of io::Error::other("test error")
-/// Used by DebugDisplayed and AsDebugDisplay wrappers
+/// Used by DebugForDisplay and AsDebugDisplay wrappers
 const EXPECTED_DEBUG: &str = r#"Custom { kind: Other, error: "test error" }"#;
 
 /// The expected Display representation of io::Error::other("test error")
-/// Used by DisplayDebugged and AsDisplayDebug wrappers
+/// Used by DisplayForDebug and AsDisplayDebug wrappers
 const EXPECTED_DISPLAY: &str = "test error";
 
 macro_rules! test_source {
@@ -43,16 +43,16 @@ macro_rules! test_source {
 
 mod debug_displayed {
     use super::*;
-    use display_as_debug::as_display::DebugDisplayed;
+    use display_as_debug::display::DebugForDisplay;
 
-    test_fmt!(display, DebugDisplayed(Error::other(ERROR_MSG)), "{}", EXPECTED_DEBUG);
-    test_fmt!(debug, DebugDisplayed(Error::other(ERROR_MSG)), "{:?}", EXPECTED_DEBUG);
-    test_source!(owned DebugDisplayed);
+    test_fmt!(display, DebugForDisplay(Error::other(ERROR_MSG)), "{}", EXPECTED_DEBUG);
+    test_fmt!(debug, DebugForDisplay(Error::other(ERROR_MSG)), "{:?}", EXPECTED_DEBUG);
+    test_source!(owned DebugForDisplay);
 }
 
 mod debug_display {
     use super::*;
-    use display_as_debug::as_display::DebugDisplay;
+    use display_as_debug::display::DebugDisplay;
 
     test_fmt!(borrowed, Error::other(ERROR_MSG).debug_as_display(), "{}", EXPECTED_DEBUG);
     test_fmt!(owned, Error::other(ERROR_MSG).wrap_debug_as_display(), "{}", EXPECTED_DEBUG);
@@ -60,7 +60,7 @@ mod debug_display {
 
 mod as_debug_display {
     use super::*;
-    use display_as_debug::as_display::DebugAsDisplay;
+    use display_as_debug::display::DebugAsDisplay;
 
     test_fmt!(display, DebugAsDisplay(&Error::other(ERROR_MSG)), "{}", EXPECTED_DEBUG);
     test_fmt!(debug, DebugAsDisplay(&Error::other(ERROR_MSG)), "{:?}", EXPECTED_DEBUG);
@@ -69,16 +69,16 @@ mod as_debug_display {
 
 mod display_debugged {
     use super::*;
-    use display_as_debug::as_debug::DisplayDebugged;
+    use display_as_debug::debug::DisplayForDebug;
 
-    test_fmt!(display, DisplayDebugged(Error::other(ERROR_MSG)), "{}", EXPECTED_DISPLAY);
-    test_fmt!(debug, DisplayDebugged(Error::other(ERROR_MSG)), "{:?}", EXPECTED_DISPLAY);
-    test_source!(owned DisplayDebugged);
+    test_fmt!(display, DisplayForDebug(Error::other(ERROR_MSG)), "{}", EXPECTED_DISPLAY);
+    test_fmt!(debug, DisplayForDebug(Error::other(ERROR_MSG)), "{:?}", EXPECTED_DISPLAY);
+    test_source!(owned DisplayForDebug);
 }
 
 mod display_debug {
     use super::*;
-    use display_as_debug::as_debug::DisplayDebug;
+    use display_as_debug::debug::DisplayDebug;
 
     test_fmt!(borrowed, Error::other(ERROR_MSG).display_as_debug(), "{}", EXPECTED_DISPLAY);
     test_fmt!(owned, Error::other(ERROR_MSG).wrap_display_as_debug(), "{}", EXPECTED_DISPLAY);
@@ -86,7 +86,7 @@ mod display_debug {
 
 mod as_display_debug {
     use super::*;
-    use display_as_debug::as_debug::DisplayAsDebug;
+    use display_as_debug::debug::DisplayAsDebug;
 
     test_fmt!(display, DisplayAsDebug(&std::io::Error::other(ERROR_MSG)), "{}", EXPECTED_DISPLAY);
     test_fmt!(debug, DisplayAsDebug(&std::io::Error::other(ERROR_MSG)), "{:?}", EXPECTED_DISPLAY);

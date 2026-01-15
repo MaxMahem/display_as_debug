@@ -1,7 +1,8 @@
-use super::{OpaqueOptionDebug, OptionTypeDebug};
-use crate::type_name::DisplayMode;
+use super::{OpaqueOption, TypeNameOption};
+use crate::types::DisplayMode;
 
 /// Extension trait providing convenience methods for debugging [`Option`] values.
+#[sealed::sealed]
 pub trait OptionDebugExt<T> {
     /// Returns a wrapper that implements [`Debug`] with opaque [`Some`] values.
     ///
@@ -15,7 +16,7 @@ pub trait OptionDebugExt<T> {
     /// assert_eq!(format!("{:?}", Some("sensitive data").debug_opaque()), "Some(..)");
     /// assert_eq!(format!("{:?}", None::<&str>.debug_opaque()), "None");
     /// ```
-    fn debug_opaque(&self) -> OpaqueOptionDebug<'_, T>;
+    fn debug_opaque(&self) -> OpaqueOption<'_, T>;
 
     /// Returns a wrapper that implements [`Debug`], displaying type names instead of values.
     ///
@@ -29,21 +30,22 @@ pub trait OptionDebugExt<T> {
     ///
     /// ```rust
     /// use display_as_debug::option::OptionDebugExt;
-    /// use display_as_debug::type_name::{Full, Short};
+    /// use display_as_debug::types::{Full, Short};
     ///
-    /// assert_eq!(format!("{:?}", Some(vec![1]).debug_type::<Full>()), "Some(alloc::vec::Vec<i32>)");
-    /// assert_eq!(format!("{:?}", Some(vec![1]).debug_type::<Short>()), "Some(Vec<i32>)");
-    /// assert_eq!(format!("{:?}", None::<i32>.debug_type::<Full>()), "None");
+    /// assert_eq!(format!("{:?}", Some(vec![1]).debug_type_name::<Full>()), "Some(alloc::vec::Vec<i32>)");
+    /// assert_eq!(format!("{:?}", Some(vec![1]).debug_type_name::<Short>()), "Some(Vec<i32>)");
+    /// assert_eq!(format!("{:?}", None::<i32>.debug_type_name::<Full>()), "None");
     /// ```
-    fn debug_type<M: DisplayMode>(&self) -> OptionTypeDebug<'_, T, M>;
+    fn debug_type_name<M: DisplayMode>(&self) -> TypeNameOption<'_, T, M>;
 }
 
+#[sealed::sealed]
 impl<T> OptionDebugExt<T> for Option<T> {
-    fn debug_opaque(&self) -> OpaqueOptionDebug<'_, T> {
-        OpaqueOptionDebug(self)
+    fn debug_opaque(&self) -> OpaqueOption<'_, T> {
+        OpaqueOption(self)
     }
 
-    fn debug_type<M: DisplayMode>(&self) -> OptionTypeDebug<'_, T, M> {
-        OptionTypeDebug::new::<M>(self)
+    fn debug_type_name<M: DisplayMode>(&self) -> TypeNameOption<'_, T, M> {
+        TypeNameOption::new::<M>(self)
     }
 }

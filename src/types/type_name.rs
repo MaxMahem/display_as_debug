@@ -5,14 +5,14 @@ use core::marker::PhantomData;
 #[sealed::sealed]
 pub trait DisplayMode {}
 
-/// Display mode that shows the full type name from [`std::any::type_name`](core::any::type_name).
+/// [`DisplayMode`] that shows the full type name from [`std::any::type_name`](core::any::type_name).
 #[derive(Copy, Clone, Debug)]
 pub struct Full;
 
 #[sealed::sealed]
 impl DisplayMode for Full {}
 
-/// Display mode that shows only the short type name (last component after `::` splitting).
+/// [`DisplayMode`] that shows only the short type name (last component after `::` splitting).
 #[derive(Copy, Clone, Debug)]
 pub struct Short;
 
@@ -31,7 +31,7 @@ impl DisplayMode for Short {}
 /// # Examples
 ///
 /// ```
-/// # use display_as_debug::type_name::TypeName;
+/// # use display_as_debug::types::TypeName;
 /// assert_eq!(format!("{:?}", TypeName::<Vec<i32>>::FULL), "alloc::vec::Vec<i32>");
 /// assert_eq!(format!("{}", TypeName::<Vec<i32>>::FULL), "alloc::vec::Vec<i32>");
 /// assert_eq!(format!("{:?}", TypeName::<Vec<i32>>::SHORT), "Vec<i32>");
@@ -46,7 +46,7 @@ impl<T: ?Sized, M: DisplayMode> TypeName<T, M> {
     /// # Examples
     ///
     /// ```
-    /// # use display_as_debug::type_name::TypeName;
+    /// # use display_as_debug::types::TypeName;
     /// assert_eq!(format!("{:?}", TypeName::<Vec<i32>>::FULL), "alloc::vec::Vec<i32>");
     /// assert_eq!(format!("{}", TypeName::<Vec<i32>>::FULL), "alloc::vec::Vec<i32>");
     /// ```
@@ -57,7 +57,7 @@ impl<T: ?Sized, M: DisplayMode> TypeName<T, M> {
     /// # Examples
     ///
     /// ```
-    /// # use display_as_debug::type_name::TypeName;
+    /// # use display_as_debug::types::TypeName;
     /// assert_eq!(format!("{:?}", TypeName::<Vec<i32>>::SHORT), "Vec<i32>");
     /// assert_eq!(format!("{}", TypeName::<Vec<i32>>::SHORT), "Vec<i32>");
     /// ```

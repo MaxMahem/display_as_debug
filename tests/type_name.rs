@@ -1,6 +1,6 @@
 mod common;
 
-use display_as_debug::type_name::TypeName;
+use display_as_debug::types::TypeName;
 
 use crate::common::*;
 

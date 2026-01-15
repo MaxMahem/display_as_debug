@@ -1,7 +1,7 @@
 use core::fmt::{Debug, Formatter};
 use core::marker::PhantomData;
 
-use crate::type_name::{DisplayMode, Full, TypeName};
+use crate::types::{DisplayMode, Full, TypeName};
 
 /// A [`Result<T, E>`] wrapper that implements [`Debug`], displaying type names instead of values.
 ///
@@ -11,19 +11,19 @@ use crate::type_name::{DisplayMode, Full, TypeName};
 /// The `M` type parameter controls whether [`Full`](crate::type_name::Full) or [`Short`](crate::type_name::Short)
 /// type names are displayed.
 #[derive(Copy, Clone)]
-pub struct ResultTypeDebug<'a, T, E, M: DisplayMode = Full> {
+pub struct TypeNameResult<'a, T, E, M: DisplayMode = Full> {
     inner: &'a Result<T, E>,
     _marker: PhantomData<M>,
 }
 
-impl<'a, T, E> ResultTypeDebug<'a, T, E> {
-    /// Create a new `ResultTypeDebug` wrapper.
-    pub const fn new<M: DisplayMode>(result: &'a Result<T, E>) -> ResultTypeDebug<'a, T, E, M> {
-        ResultTypeDebug { inner: result, _marker: PhantomData }
+impl<'a, T, E> TypeNameResult<'a, T, E> {
+    /// Create a new `TypeNameResult` wrapper.
+    pub const fn new<M: DisplayMode>(result: &'a Result<T, E>) -> TypeNameResult<'a, T, E, M> {
+        TypeNameResult { inner: result, _marker: PhantomData }
     }
 }
 
-impl<T, E: Debug, M: DisplayMode> Debug for ResultTypeDebug<'_, T, E, M>
+impl<T, E: Debug, M: DisplayMode> Debug for TypeNameResult<'_, T, E, M>
 where
     TypeName<T, M>: Debug,
 {

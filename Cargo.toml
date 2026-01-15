@@ -14,4 +14,5 @@ keywords = ["debug", "display", "formatting", "error-handling"]
 categories = ["development-tools::debugging", "rust-patterns"]
 
 [dependencies]
+# derive_more = { version = "2.1.1", default-features = false, features = ["constructor"] }
 sealed = "0.6.0"

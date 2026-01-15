@@ -13,28 +13,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **`Opaque` type**: Introduced `Opaque` type for obscuring values, showing `".."` for privacy.
-- **`TypeName` type**: Introduced `TypeName` type for showing type names using the specified `DisplayMode`.
-  - **`DisplayMode` trait**: Introduced `DisplayMode` trait with `Full` and `Short` implementations to control type name formatting.
-- **`DebugTupleExt` trait**: Extension trait for `core::fmt::DebugTuple` providing convenient field formatting methods:
-  - `field_display()` - Uses the `Display` implementation for a field value
-  - `field_type()` - Shows the value's type name using the specified `DisplayMode` (e.g., `field_type::<T, Full>("name")`)
-  - `field_opaque()` - Obscures the value, showing `".."` for privacy
-- **`DebugStructExt` trait**: Extension trait for `core::fmt::DebugStruct` providing convenient field formatting methods:
-  - `field_display()` - Uses the `Display` implementation for a field value
-  - `field_type()` - Shows the value's type name using the specified `DisplayMode` (e.g., `field_type::<T, Full>("name")`)
-  - `field_opaque()` - Obscures the value, showing `".."` for privacy
+- **`types` module**: Added `types` module for specialized types used by the crate.
+  - **`Opaque` struct**: Introduced `Opaque` struct for obscuring values, showing `".."` for privacy.
+  - **`TypeName` struct**: Introduced `TypeName` struct for showing type names using the specified `DisplayMode`.
+    - **`DisplayMode` trait**: Introduced `DisplayMode` trait with `Full` and `Short` implementations to control type name formatting.
+  - **`TestValue` struct**: Added `TestValue` struct for demonstrating display modes for testing.
+  - **`ObscureList` struct**: Struct for showing obscured list length as `[..: N]`.
+  - **`TypeNameList` struct**: Struct for showing list type and length as `[<Type>: N]`.
+- **`fmt` module**: Added `fmt` module for formatting utilities from `std::fmt`.
+  - **`DebugTupleExt` trait**: Extension trait for `std::fmt::DebugTuple` providing convenient field formatting methods:
+    - `field_display()` - Uses the `Display` implementation for a field value
+    - `field_type()` - Uses `TypeName` to show the value's type name using the specified `DisplayMode` (e.g., `field_type::<T, Full>("name")`) for a field
+    - `field_opaque()` - Uses an `Opaque` wrapper for the value in a field
+  - **`DebugStructExt` trait**: Extension trait for `std::fmt::DebugStruct` providing convenient field formatting methods:
+    - `field_display()` - Uses the `Display` implementation for a field value
+    - `field_type()` - Uses `TypeName` to show the value's type name using the specified `DisplayMode` (e.g., `field_type::<T, Full>("name")`) for a field
+    - `field_opaque()` - Uses an `Opaque` wrapper for the value in a field
+  - **`DebugListExt` trait**: Extension trait for `std::fmt::DebugList` providing convenient entry formatting methods:
+    - `entry_display()` - Uses the `Display` implementation for a field value
+    - `entries_display()` - Uses the `Display` implementation for an iterator of values
+  - **`DebugMapExt` trait**: Extension trait for `std::fmt::DebugMap` providing convenient entry formatting methods:
+    - `entry_display()` - Uses the `Display` implementation for a value in an entry
+    - `entries_display()` - Uses the `Display` implementation for an iterator of values in an entry
+    - `entry_opaque()` - Uses an `Opaque` wrapper for the value in an entry
+    - `entries_opaque()` - Uses an `Opaque` wrapper for the values in an iterator of entries
+  - **`DebugSetExt` trait**: Extension trait for `std::fmt::DebugSet` providing convenient entry formatting methods:
+    - `entry_display()` - Uses the `Display` implementation for a value in an entry
+    - `entries_display()` - Uses the `Display` implementation for an iterator of values in an entry
 
 ### Changed
 
-- **BREAKING**: `OptionDebugExt::debug_type` and `ResultDebugExt::debug_type` are now generic over `DisplayMode`. You must specify the mode (e.g., `.debug_type::<Full>()`).
 - **BREAKING**: Renamed methods for clarity and consistency:
+  - `debug_type` → `debug_type_name`
   - `as_debug()` → `display_as_debug()`
   - `as_display()` → `debug_as_display()`
   - `to_debug()` → `wrap_display_as_debug()`
   - `to_display()` → `wrap_debug_as_display()`
   - `AsDebugDisplay` → `DebugAsDisplay`
   - `AsDisplayDebug` → `DisplayAsDebug`
+  - `DisplayDebugged` → `DisplayForDebug`
+  - `DebugDisplay` → `DebugForDisplay`
+  - `OpaqueResultDbg` → `OpaqueResult`
+  - `OpaqueOptionDbg` → `OpaqueOption`
+  - `OptionTypeDebug` → `TypeNameOption`
+  - `ResultTypeDebug` → `TypeNameResult`
+- **BREAKING**: Reorganized module structure. Types are now exported through their respective submodules:
+  - `debug` module - for wrapping types implementing `Display` to use their `Display` implementation for `Debug`
+    - Contains: `DisplayDebug` trait, `AsDisplayWrapper`, `DisplayWrapper`
+  - `display` module - for wrapping types implementing `Debug` to use their `Debug` implementation for `Display`
+    - Contains: `DebugDisplay` trait, `AsDebugWrapper`, `DebugWrapper`
+  - **Migration**: Update imports from `use display_as_debug::DisplayAsDebug` to `use display_as_debug::debug::DisplayDebug` (and similarly for other types)
 
 ## [0.3.0] - 01/07/2026
 
@@ -45,9 +73,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **BREAKING**: Renamed types to use fully spelled-out names for consistency:
-  - `OpaqueResultDbg` → `OpaqueResultDebug`
-  - `OpaqueOptionDbg` → `OpaqueOptionDebug`
 - **MSRV**: Specified as Rust 1.85.1
 
 ## [0.2.0] - 12/12/2025

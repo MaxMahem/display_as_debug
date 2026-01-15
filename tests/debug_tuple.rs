@@ -1,23 +1,20 @@
 use core::fmt::{Debug, Formatter};
-use display_as_debug::DebugTupleExt;
-use display_as_debug::type_name::{Full, Short};
+use display_as_debug::fmt::DebugTupleExt;
+use display_as_debug::types::{Full, Short};
 
 #[test]
 fn field_display() {
-    struct UserId(u32);
-    impl core::fmt::Display for UserId {
+    use display_as_debug::types::TestValue;
+
+    struct Wrapper(TestValue);
+
+    impl Debug for Wrapper {
         fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
-            write!(f, "user_{}", self.0)
-        }
-    }
-    struct Session(UserId);
-    impl Debug for Session {
-        fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
-            f.debug_tuple("Session").field_display(&self.0).finish()
+            f.debug_tuple("Wrapper").field_display(&self.0).finish()
         }
     }
 
-    assert_eq!(format!("{:?}", Session(UserId(42))), "Session(user_42)");
+    assert_eq!(format!("{:?}", Wrapper(TestValue(()))), "Wrapper(Display(()))");
 }
 
 #[test]

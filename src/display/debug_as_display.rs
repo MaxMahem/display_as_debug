@@ -11,7 +11,7 @@ use core::fmt::{Debug, Display, Formatter, Result};
 /// # Examples
 ///
 /// ```rust
-/// # use display_as_debug::as_display::DebugAsDisplay;
+/// # use display_as_debug::display::DebugAsDisplay;
 /// assert_eq!(format!("{}", DebugAsDisplay(&vec![1])), "[1]", "debug used for display");
 /// assert_eq!(format!("{:?}", DebugAsDisplay(&vec![1])), "[1]", "debug unchanged");
 /// ```

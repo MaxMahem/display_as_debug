@@ -1,40 +1,31 @@
 use core::fmt::{Debug, DebugStruct, Display};
 
-use crate::as_debug::DisplayDebug;
-use crate::opaque::Opaque;
-use crate::type_name::{DisplayMode, TypeName};
+use crate::debug::DisplayDebug;
+use crate::types::{DisplayMode, Opaque, TypeName};
 
 /// Extension trait for [`DebugStruct`] providing convenient field formatting methods.
+#[sealed::sealed]
 pub trait DebugStructExt {
     /// Adds a field using the value's [`Display`] implementation instead of [`Debug`].
     ///
     /// # Example
     ///
-    /// ```
-    /// use display_as_debug::DebugStructExt;
+    /// ```rust
+    /// use display_as_debug::fmt::DebugStructExt;
+    /// use display_as_debug::types::TestValue;
     /// use std::fmt::{Debug, Display, Formatter};
     ///
-    /// struct UserId(u32);
+    /// struct Data<T> { value: T }
     ///
-    /// impl Display for UserId {
+    /// impl<T: Display> Debug for Data<T> {
     ///     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-    ///         write!(f, "user_{}", self.0)
+    ///         f.debug_struct("Data").field_display("value", &self.value).finish()
     ///     }
     /// }
     ///
-    /// struct Session { user_id: UserId }
+    /// let data = Data { value: TestValue::DEFAULT };
     ///
-    /// impl Debug for Session {
-    ///     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-    ///         f.debug_struct("Session")
-    ///             .field_display("user_id", &self.user_id)
-    ///             .finish()
-    ///     }
-    /// }
-    ///
-    /// let session = Session { user_id: UserId(42) };
-    ///
-    /// assert_eq!(format!("{:?}", session), "Session { user_id: user_42 }");
+    /// assert_eq!(format!("{:?}", data), "Data { value: Display(()) }");
     /// ```
     fn field_display<T: Display>(&mut self, name: &str, value: &T) -> &mut Self;
 
@@ -42,9 +33,9 @@ pub trait DebugStructExt {
     ///
     /// # Example
     ///
-    /// ```
-    /// use display_as_debug::DebugStructExt;
-    /// use display_as_debug::type_name::{Full, Short};
+    /// ```rust
+    /// use display_as_debug::fmt::DebugStructExt;
+    /// use display_as_debug::types::{Full, Short};
     /// use std::fmt::{Debug, Display, Formatter};
     ///
     /// struct Container<T> { data: T }
@@ -60,10 +51,7 @@ pub trait DebugStructExt {
     ///
     /// let c = Container { data: vec![1, 2, 3] };
     ///
-    /// assert_eq!(
-    ///     format!("{:?}", c),
-    ///     "Container { full: alloc::vec::Vec<i32>, short: Vec<i32> }"
-    /// );
+    /// assert_eq!(format!("{:?}", c), "Container { full: alloc::vec::Vec<i32>, short: Vec<i32> }");
     /// ```
     fn field_type<T, M: DisplayMode>(&mut self, name: &str) -> &mut Self
     where
@@ -73,27 +61,26 @@ pub trait DebugStructExt {
     ///
     /// # Example
     ///
-    /// ```
-    /// use display_as_debug::DebugStructExt;
+    /// ```rust
+    /// use display_as_debug::fmt::DebugStructExt;
     /// use std::fmt::{Debug, Display, Formatter};
     ///
-    /// struct Credentials { password: String }
+    /// struct Credentials<T> { password: T }
     ///
-    /// impl Debug for Credentials {
+    /// impl<T> Debug for Credentials<T> {
     ///     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-    ///         f.debug_struct("Credentials")
-    ///             .field_opaque("password")
-    ///             .finish()
+    ///         f.debug_struct("Credentials").field_opaque("password").finish()
     ///     }
     /// }
     ///
-    /// let creds = Credentials { password: "secret123".into() };
+    /// let creds = Credentials { password: "secret" };
     ///
     /// assert_eq!(format!("{:?}", creds), "Credentials { password: .. }");
     /// ```
     fn field_opaque(&mut self, name: &str) -> &mut Self;
 }
 
+#[sealed::sealed]
 impl DebugStructExt for DebugStruct<'_, '_> {
     fn field_display<T: Display>(&mut self, name: &str, value: &T) -> &mut Self {
         self.field(name, &value.display_as_debug())

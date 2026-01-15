@@ -1,4 +1,4 @@
-use core::fmt::{Debug, Formatter};
+use core::fmt::{Debug, Display, Formatter};
 
 /// A marker type that formats as `..` when used in `Debug` contexts.
 ///
@@ -7,8 +7,8 @@ use core::fmt::{Debug, Formatter};
 ///
 /// # Examples
 ///
-/// ```
-/// use display_as_debug::Opaque;
+/// ```rust
+/// use display_as_debug::types::Opaque;
 /// use std::fmt::{Debug, Formatter};
 ///
 /// struct Credentials {
@@ -30,8 +30,17 @@ use core::fmt::{Debug, Formatter};
 #[derive(Copy, Clone)]
 pub struct Opaque;
 
+/// The string reprsentation of [`Opaque`]
+const OPAQUE: &str = "..";
+
 impl Debug for Opaque {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
-        f.write_str("..")
+        f.write_str(OPAQUE)
+    }
+}
+
+impl Display for Opaque {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
+        Debug::fmt(self, f)
     }
 }

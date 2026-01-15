@@ -9,7 +9,7 @@ use core::fmt::{Debug, Display, Formatter, Result};
 /// ## Returning Errors from `main()`
 ///
 /// When `main()` returns a [`Result<(), E>`](core::result::Result), Rust prints the error using its
-/// [`Debug`] implementation. By wrapping error types with [`DisplayDebugged`], you can ensure the
+/// [`Debug`] implementation. By wrapping error types with [`DisplayForDebug`], you can ensure the
 /// user-friendly [`Display`] representation is shown instead of the more technical [`Debug`]
 /// output.
 ///
@@ -18,9 +18,9 @@ use core::fmt::{Debug, Display, Formatter, Result};
 /// # Examples
 ///
 /// ```rust
-/// # use display_as_debug::as_debug::DisplayDebugged;
-/// assert_eq!(format!("{:?}", DisplayDebugged("hello")), "hello", "display used for debug");
-/// assert_eq!(format!("{}", DisplayDebugged("hello")), "hello", "display unchanged");
+/// # use display_as_debug::debug::DisplayForDebug;
+/// assert_eq!(format!("{:?}", DisplayForDebug("hello")), "hello", "display used for debug");
+/// assert_eq!(format!("{}", DisplayForDebug("hello")), "hello", "display unchanged");
 /// ```
 ///
 /// # Trait Implementations
@@ -28,23 +28,23 @@ use core::fmt::{Debug, Display, Formatter, Result};
 /// - **[`Debug`]**: Uses the wrapped value's [`Display`] implementation
 /// - **[`Display`]**: Forwards to the wrapped value's [`Display`] implementation  
 /// - **[`Error`]**: Implements [`Error`] if the wrapped type implements both [`Display`] and [`Error`]
-pub struct DisplayDebugged<T: Display>(pub T);
+pub struct DisplayForDebug<T: Display>(pub T);
 
-impl<T: Display> Debug for DisplayDebugged<T> {
+impl<T: Display> Debug for DisplayForDebug<T> {
     /// Formats the owned value using its display implementation.
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         Display::fmt(&self.0, f)
     }
 }
 
-impl<T: Display> Display for DisplayDebugged<T> {
+impl<T: Display> Display for DisplayForDebug<T> {
     /// Formats the owned value using its display implementation.
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         Display::fmt(&self.0, f)
     }
 }
 
-impl<T: Display + Error> Error for DisplayDebugged<T> {
+impl<T: Display + Error> Error for DisplayForDebug<T> {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         self.0.source()
     }

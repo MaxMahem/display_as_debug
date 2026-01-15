@@ -32,62 +32,24 @@ It's on [crates.io](https://crates.io/crates/display_as_debug).
 Basic Usage
 
 ```rust
-use display_as_debug::as_debug::DisplayDebug;
+use display_as_debug::types::TestValue;
+use display_as_debug::debug::DisplayDebug;
+use display_as_debug::display::DebugDisplay;
 
-struct UserId(u32);
+assert_eq!(format!("{}", TestValue::DEFAULT), "Display(())", "TestValue should show as Display");
+assert_eq!(format!("{:?}", TestValue::DEFAULT), "Debug(())", "TestValue should show as Debug");
 
-impl std::fmt::Display for UserId {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "user_{}", self.0)
-    }
-}
+assert_eq!(format!("{:?}", TestValue::DEFAULT.display_as_debug()), "Display(())", "display_as_debug should cause value to be formatted as Display in Debug context");
+assert_eq!(format!("{}", TestValue::DEFAULT.display_as_debug()), "Display(())", "display conext should be unchanged.");
 
-let id = UserId(42);
+assert_eq!(format!("{}", TestValue::DEFAULT.debug_as_display()), "Debug(())", "debug_as_display should cause value to be formatted as Debug in Display context");
+assert_eq!(format!("{:?}", TestValue::DEFAULT.debug_as_display()), "Debug(())", "debug context should be unchanged.");
 
-// Use Display implementation for Debug output
-assert_eq!(format!("{:?}", id.display_as_debug()), "user_42");
-
-// Still uses Display when formatting normally
-assert_eq!(format!("{}", id.display_as_debug()), "user_42");
 ```
 
 ### Returning Friendly Errors from `main()`
 
-When `main()` returns a `Result<(), E>`, Rust prints errors using their `Debug` implementation, which can be verbose and technical. Use `DisplayDebugged` to show user-friendly error messages instead:
-
-```rust,no_run
-use display_as_debug::as_debug::{DisplayDebugged, DisplayDebug};
-use std::fmt;
-
-#[derive(Debug)]
-struct AppError {
-    message: String,
-    code: i32,
-}
-
-impl fmt::Display for AppError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Error {}: {}", self.code, self.message)
-    }
-}
-
-impl std::error::Error for AppError {}
-
-fn risky_operation() -> Result<(), AppError> {
-    Err(AppError {
-        message: "database connection failed".to_string(),
-        code: 500,
-    })
-}
-
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Wrap errors to use Display instead of Debug
-    risky_operation().map_err(|e| e.wrap_display_as_debug())?;
-    Ok(())
-}
-```
-
-Instead of seeing `AppError { message: "database connection failed", code: 500 }`, users see the clean message: `Error 500: database connection failed`.
+When `main()` returns a `Result<(), E>`, Rust prints errors using their `Debug` implementation, which can be verbose and technical. Use `DisplayForDebug` to show user-friendly error messages instead:
 
 See [examples/error_from_main.rs](examples/error_from_main.rs) for a complete working example.
 
@@ -96,8 +58,8 @@ See [examples/error_from_main.rs](examples/error_from_main.rs) for a complete wo
 The `DebugStructExt` and `DebugTupleExt` extension traits provide a cleaner API for implementing `Debug` manually:
 
 ```rust
-use display_as_debug::{DebugStructExt, DebugTupleExt};
-use display_as_debug::type_name::{Short, Full};
+use display_as_debug::fmt::{DebugStructExt, DebugTupleExt};
+use display_as_debug::types::{Short, Full};
 
 struct Secret {
     id: u32,
@@ -129,10 +91,10 @@ impl<T> std::fmt::Debug for Wrapper<T> {
 
 ### Using Debug as Display
 
-The inverse wrappers (`DebugDisplay`, `AsDebugDisplayed`, `DebugDisplayed`) let you use `Debug` implementations where `Display` is needed:
+The inverse wrappers (`DebugDisplay`, `AsDebugForDisplay`, `DebugForDisplay`) let you use `Debug` implementations where `Display` is needed:
 
 ```rust
-use display_as_debug::as_display::DebugDisplay;
+use display_as_debug::display::DebugDisplay;
 
 let numbers = vec![1, 2, 3];
 let formatted = format!("Numbers: {}", numbers.debug_as_display());
@@ -150,14 +112,14 @@ Show the type name instead of the actual value:
 ```rust
 use display_as_debug::option::OptionDebugExt;
 use display_as_debug::result::ResultDebugExt;
-use display_as_debug::type_name::{Full, Short};
+use display_as_debug::types::{Full, Short};
 
 let opt = Some(42);
-assert_eq!(format!("{:?}", opt.debug_type::<Full>()), "Some(i32)");
+assert_eq!(format!("{:?}", opt.debug_type_name::<Full>()), "Some(i32)");
 
 let res: Result<String, i32> = Ok("secret".to_string());
-assert_eq!(format!("{:?}", res.debug_type::<Full>()), "Ok(alloc::string::String)");
-assert_eq!(format!("{:?}", res.debug_type::<Short>()), "Ok(String)");
+assert_eq!(format!("{:?}", res.debug_type_name::<Full>()), "Ok(alloc::string::String)");
+assert_eq!(format!("{:?}", res.debug_type_name::<Short>()), "Ok(String)");
 ```
 
 ### Opaque Wrappers

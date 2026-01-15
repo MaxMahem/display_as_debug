@@ -2,7 +2,7 @@
 //! when returning errors from main.
 //! Run with `cargo run --example error_comparison` to see the difference
 
-use display_as_debug::as_debug::DisplayDebug;
+use display_as_debug::debug::DisplayDebug;
 use std::fmt;
 
 #[derive(Debug)]
