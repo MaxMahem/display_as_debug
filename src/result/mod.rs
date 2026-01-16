@@ -1,10 +1,8 @@
-mod debug_result;
 mod opaque_result;
-mod type_debug;
+mod type_name_result;
 
-const STR_ERR: &str = "Err";
-const STR_OK: &str = "Ok";
+pub(crate) const STR_ERR: &str = "Err";
+pub(crate) const STR_OK: &str = "Ok";
 
-pub use debug_result::DebugResult;
 pub use opaque_result::OpaqueResult;
-pub use type_debug::TypeNameResult;
+pub use type_name_result::TypeNameResult;

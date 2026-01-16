@@ -1,6 +1,6 @@
 use core::fmt::{Debug, Display, Formatter, Result};
 
-use super::Opaque;
+use crate::types::OPAQUE;
 
 /// A type that formats as `[..: N]` when used with [`Debug`].
 ///
@@ -35,7 +35,7 @@ impl OpaqueList {
 
 impl Debug for OpaqueList {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "[{Opaque}: {}]", self.0)
+        write!(f, "[{}: {}]", OPAQUE, self.0)
     }
 }
 

@@ -1,8 +1,8 @@
 use core::fmt::{Debug, DebugMap, Display};
 
 use super::fold_mut::IteratorFoldMut;
-use crate::debug::DisplayDebug;
-use crate::types::Opaque;
+use crate::debug::DisplayAsDebug;
+use crate::types::OPAQUE;
 
 /// Extension trait for [`DebugMap`] providing convenient entry formatting methods.
 #[sealed::sealed]
@@ -13,7 +13,7 @@ pub trait DebugMapExt {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```rust
     /// use display_as_debug::fmt::DebugMapExt;
     /// use display_as_debug::types::TestValue;
     /// use std::fmt::{Debug, Display, Formatter};
@@ -36,7 +36,7 @@ pub trait DebugMapExt {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```rust
     /// use display_as_debug::fmt::DebugMapExt;
     /// use std::fmt::{Debug, Display, Formatter};
     ///
@@ -82,7 +82,7 @@ pub trait DebugMapExt {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```rust
     /// use display_as_debug::fmt::DebugMapExt;
     /// use std::fmt::{Debug, Formatter};
     /// use std::collections::BTreeMap;
@@ -107,11 +107,11 @@ pub trait DebugMapExt {
 #[sealed::sealed]
 impl DebugMapExt for DebugMap<'_, '_> {
     fn entry_display(&mut self, key: &dyn Debug, value: &dyn Display) -> &mut Self {
-        self.entry(key, &value.display_as_debug())
+        self.entry(key, &DisplayAsDebug(value))
     }
 
     fn entry_opaque(&mut self, key: &dyn Debug) -> &mut Self {
-        self.entry(key, &Opaque)
+        self.entry(key, &OPAQUE)
     }
 
     fn entries_display<K: Debug, V: Display, I>(&mut self, iter: I) -> &mut Self

@@ -1,7 +1,7 @@
 use core::fmt::{Debug, DebugStruct, Display};
 
-use crate::debug::DisplayDebug;
-use crate::types::{DisplayMode, Opaque, TypeName};
+use crate::debug::DisplayAsDebug;
+use crate::types::{DisplayMode, OPAQUE, TypeName};
 
 /// Extension trait for [`DebugStruct`] providing convenient field formatting methods.
 #[sealed::sealed]
@@ -83,7 +83,7 @@ pub trait DebugStructExt {
 #[sealed::sealed]
 impl DebugStructExt for DebugStruct<'_, '_> {
     fn field_display(&mut self, name: &str, value: &dyn Display) -> &mut Self {
-        self.field(name, &value.display_as_debug())
+        self.field(name, &DisplayAsDebug(value))
     }
 
     fn field_type<T, M: DisplayMode>(&mut self, name: &str) -> &mut Self
@@ -94,6 +94,6 @@ impl DebugStructExt for DebugStruct<'_, '_> {
     }
 
     fn field_opaque(&mut self, name: &str) -> &mut Self {
-        self.field(name, &Opaque)
+        self.field(name, &OPAQUE)
     }
 }

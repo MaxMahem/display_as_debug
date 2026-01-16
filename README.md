@@ -9,19 +9,17 @@
 
 A lightweight utility crate with wrappers that let you swap `Display` and `Debug` implementations around.
 
-This crate provides adaptors for using a type's `Display` implementation as its `Debug` implementation (and vice versa). It's useful when you need human-readable output in debug contexts, want to return friendly error messages from `main()`, or need to work with types that only implement one trait but you need the other.
-
-Also included are specialized wrappers for `Option` and `Result` types that provide a implement `Debug` for these types when the underlying type may not, or when you wish to hide the underlying type's debug implementation.
+This crate provides a number of utility types, including adaptors for using a type's `Display` implementation as its `Debug` implementation (and vice versa). It's useful when you need human-readable output in debug contexts, want to return friendly error messages from `main()`, or need to work with types that only implement one trait but you need the other.
 
 This crate is `no_std` compatible and contains no `unsafe` code.
 
 ## Features
 
-- **Borrowing and owning adaptors** for swapping `Display` ↔ `Debug` implementations
-- **Extension traits** (`DisplayDebug`, `DebugDisplay`) providing convenient `.as_debug()` and `.as_display()` methods
+- **Transparent wrapper types** (`DisplayAsDebug`, `DebugAsDisplay`) for swapping `Display` ↔ `Debug` implementations
 - **Specialized wrappers** for `Option<T>` and `Result<T, E>` that work without requiring `T: Debug`
-- **Type name adaptors** (`Full`, `Short`) for showing full or short type names
-- **`DebugTuple` and `DebugStruct` extensions** for conveniently formatting tuple and struct fields
+- **`DebugXXX` extensions** for conveniently formatting `std::fmt` `DebugXXX` debug helper types
+- **Obscuring `Option`/`Result` wrappers** for obscuring values while preserving variant information
+- **Various Format Types** for providing information for `Debug` and `Display`
 
 ## Installation
 
@@ -29,41 +27,47 @@ It's on [crates.io](https://crates.io/crates/display_as_debug).
 
 ## Examples
 
-### Basic Usage
+### Basic Usage - Display as Debug Wrappers
 
 ```rust
 use display_as_debug::types::TestValue;
-use display_as_debug::debug::DisplayDebug;
-use display_as_debug::display::DebugDisplay;
+use display_as_debug::debug::DisplayAsDebug;
+use display_as_debug::display::DebugAsDisplay;
 
-assert_eq!(format!("{}", TestValue::DEFAULT), "Display(())", "TestValue should show as Display");
-assert_eq!(format!("{:?}", TestValue::DEFAULT), "Debug(())", "TestValue should show as Debug");
+// `TestValue` implements both `Display` and `Debug`, but with different output.
+assert_eq!(format!("{}", TestValue::TEST), r#"Display("test")"#, "Should be Display");
+assert_eq!(format!("{:?}", TestValue::TEST), r#"Debug("test")"#, "Should be Debug");
 
-assert_eq!(format!("{:?}", TestValue::DEFAULT.display_as_debug()), "Display(())", "display_as_debug should cause value to be formatted as Display in Debug context");
-assert_eq!(format!("{}", TestValue::DEFAULT.display_as_debug()), "Display(())", "display conext should be unchanged.");
+assert_eq!(
+    format!("{:?}", DisplayAsDebug(&TestValue::TEST)),
+    r#"Display("test")"#,
+    "Should be Display in Debug context"
+);
+assert_eq!(
+    format!("{}", DebugAsDisplay(&TestValue::TEST)),
+    r#"Debug("test")"#,
+    "Should be Debug in Display context"
+);
 
-assert_eq!(format!("{}", TestValue::DEFAULT.debug_as_display()), "Debug(())", "debug_as_display should cause value to be formatted as Debug in Display context");
-assert_eq!(format!("{:?}", TestValue::DEFAULT.debug_as_display()), "Debug(())", "debug context should be unchanged.");
-
+// All wrappers implement From, so you can use .into()
+let wrapped: DisplayAsDebug<_> = TestValue::DEFAULT.into();
+assert_eq!(format!("{:?}", wrapped), "Display(())");
 ```
+
+> **Tip**: For ergonomic chaining, the [`tap`](https://crates.io/crates/tap) crate's `.pipe()` and `conv` methods works great:
+>
+> ```rust,ignore
+> use tap::{Pipe, Conv};
+>
+> let display_as_debug = value.pipe(DisplayAsDebug);
+> let display_as_debug = value.conv::<DisplayAsDebug>();
+> ```
 
 ### Returning Friendly Errors from `main()`
 
 When `main()` returns a `Result<(), E>`, Rust prints errors using their `Debug` implementation, which can be verbose and technical. Use `DisplayAsDebug` to show user-friendly error messages instead:
 
 See [examples/error_from_main.rs](examples/error_from_main.rs) for a complete working example.
-
-### Using Debug as Display
-
-The inverse wrappers (`DebugDisplay`, `DebugAsDisplay`) let you use `Debug` implementations where `Display` is needed:
-
-```rust
-use display_as_debug::display::DebugDisplay;
-
-let numbers = vec![1, 2, 3];
-let formatted = format!("Numbers: {}", numbers.debug_as_display());
-assert_eq!(formatted, "Numbers: [1, 2, 3]");
-```
 
 ## Debug extensions
 
@@ -108,16 +112,30 @@ The `option` and `result` modules provide wrappers for `Option` and `Result` typ
 Show the type name instead of the actual value:
 
 ```rust
-use display_as_debug::option::DebugOption;
-use display_as_debug::result::DebugResult;
+use display_as_debug::option::TypeNameOption;
+use display_as_debug::result::TypeNameResult;
 use display_as_debug::types::{Full, Short};
 
-let opt = Some(42);
-assert_eq!(format!("{:?}", opt.debug_type_name::<Full>()), "Some(i32)");
+assert_eq!(
+    format!("{:?}", TypeNameOption::new::<Full>(Some(42))),
+    "Some(i32)"
+);
 
-let res: Result<String, i32> = Ok("secret".to_string());
-assert_eq!(format!("{:?}", res.debug_type_name::<Full>()), "Ok(alloc::string::String)");
-assert_eq!(format!("{:?}", res.debug_type_name::<Short>()), "Ok(String)");
+let ok: Result<String, i32> = Ok("secret".to_string());
+assert_eq!(
+    format!("{:?}", TypeNameResult::new::<Full>(ok.as_ref())),
+    "Ok(&alloc::string::String)"
+);
+assert_eq!(
+    format!("{:?}", TypeNameResult::new::<Short>(ok.as_ref())),
+    "Ok(String)"
+);
+
+let err: Result<String, i32> = Err(42);
+assert_eq!(
+    format!("{:?}", TypeNameResult::new::<Full>(err.as_ref())),
+    "Err(42)"
+);
 ```
 
 ### Opaque Wrappers
@@ -125,22 +143,20 @@ assert_eq!(format!("{:?}", res.debug_type_name::<Short>()), "Ok(String)");
 Hide the value completely while preserving the variant information:
 
 ```rust
-use display_as_debug::option::DebugOption;
-use display_as_debug::result::DebugResult;
+use display_as_debug::option::OpaqueOption;
+use display_as_debug::result::OpaqueResult;
 
 let opt = Some("sensitive data");
-assert_eq!(format!("{:?}", opt.debug_opaque()), "Some(..)");
+assert_eq!(format!("{:?}", OpaqueOption(opt)), "Some(..)");
 
 let res: Result<&str, &str> = Ok("secret");
-assert_eq!(format!("{:?}", res.debug_opaque()), "Ok(..)");
+assert_eq!(format!("{:?}", OpaqueResult(res)), "Ok(..)");
 
 // Errors are still shown for debugging
 let err: Result<&str, &str> = Err("connection failed");
-assert_eq!(format!("{:?}", err.debug_opaque()), "Err(\"connection failed\")");
+assert_eq!(format!("{:?}", OpaqueResult(err)), r#"Err("connection failed")"#);
 ```
-
-These are especially useful for logging and debugging where you want to know the state of an `Option` or `Result` without exposing potentially sensitive data.
 
 ## Debug Formatting Types
 
-Lastly the `types` module provides a set of types that can be used to convey various debug formatting information, such as type names, opaque values, and lists.
+The `types` module provides a set of types that can be used to convey various debug formatting information, such as type names, opaque values, and lists.

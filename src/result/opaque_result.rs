@@ -14,15 +14,19 @@ use crate::result::{STR_ERR, STR_OK};
 ///
 /// ```rust
 /// # use display_as_debug::result::OpaqueResult;
-/// assert_eq!(format!("{:?}", OpaqueResult(&Ok::<_, &str>(42))), "Ok(..)");
-/// assert_eq!(format!("{:?}", OpaqueResult(&Err::<i32, &str>("fail"))), r#"Err("fail")"#);
+/// assert_eq!(format!("{:?}", OpaqueResult(Ok::<_, &str>(42))), "Ok(..)");
+/// assert_eq!(format!("{:?}", OpaqueResult(Err::<i32, &str>("fail"))), r#"Err("fail")"#);
+///
+/// // Borrowed usage via as_ref()
+/// let res: Result<&str, &str> = Ok("secret");
+/// assert_eq!(format!("{:?}", OpaqueResult(res.as_ref().map(|_| ()))), "Ok(..)");
 /// ```
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, From, Deref, AsRef, AsMut)]
-pub struct OpaqueResult<'a, T, E>(pub &'a Result<T, E>);
+pub struct OpaqueResult<T, E>(pub Result<T, E>);
 
-impl<T, E: Debug> Debug for OpaqueResult<'_, T, E> {
+impl<T, E: Debug> Debug for OpaqueResult<T, E> {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
-        match self.0 {
+        match &self.0 {
             Ok(_) => f.debug_tuple(STR_OK).field_opaque().finish(),
             Err(e) => f.debug_tuple(STR_ERR).field(e).finish(),
         }

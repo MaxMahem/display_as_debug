@@ -1,7 +1,7 @@
 use core::fmt::{Debug, DebugTuple, Display};
 
-use crate::debug::DisplayDebug;
-use crate::types::{DisplayMode, Opaque, TypeName};
+use crate::debug::DisplayAsDebug;
+use crate::types::{DisplayMode, OPAQUE, TypeName};
 
 /// Extension trait for [`DebugTuple`] providing convenient field formatting methods.
 #[sealed::sealed]
@@ -23,7 +23,9 @@ pub trait DebugTupleExt {
     ///     }
     /// }
     ///
-    /// assert_eq!(format!("{:?}", Container(TestValue::DEFAULT)), "Container(Display(()))");
+    /// let container = Container(TestValue::TEST);
+    ///
+    /// assert_eq!(format!("{:?}", container), r#"Container(Display("test"))"#);
     /// ```
     fn field_display(&mut self, value: &dyn Display) -> &mut Self;
 
@@ -40,11 +42,16 @@ pub trait DebugTupleExt {
     ///
     /// impl<T> Debug for Container<T> {
     ///     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-    ///         f.debug_tuple("Container").field_type::<T, Full>().field_type::<T, Short>().finish()
+    ///         f.debug_tuple("Container")
+    ///             .field_type::<T, Full>()
+    ///             .field_type::<T, Short>()
+    ///             .finish()
     ///     }
     /// }
     ///
-    /// assert_eq!(format!("{:?}", Container(vec![1, 2, 3])), "Container(alloc::vec::Vec<i32>, Vec<i32>)");
+    /// let container = Container(vec![1, 2, 3]);
+    ///
+    /// assert_eq!(format!("{:?}", container), "Container(alloc::vec::Vec<i32>, Vec<i32>)");
     /// ```
     fn field_type<T, M: DisplayMode>(&mut self) -> &mut Self
     where
@@ -74,7 +81,7 @@ pub trait DebugTupleExt {
 #[sealed::sealed]
 impl DebugTupleExt for DebugTuple<'_, '_> {
     fn field_display(&mut self, value: &dyn Display) -> &mut Self {
-        self.field(&value.display_as_debug())
+        self.field(&DisplayAsDebug(value))
     }
 
     fn field_type<T, M: DisplayMode>(&mut self) -> &mut Self
@@ -85,6 +92,6 @@ impl DebugTupleExt for DebugTuple<'_, '_> {
     }
 
     fn field_opaque(&mut self) -> &mut Self {
-        self.field(&Opaque)
+        self.field(&OPAQUE)
     }
 }

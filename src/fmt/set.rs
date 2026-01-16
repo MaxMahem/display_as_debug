@@ -10,7 +10,7 @@ pub trait DebugSetExt {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```rust
     /// use display_as_debug::fmt::DebugSetExt;
     /// use display_as_debug::types::TestValue;
     /// use std::fmt::{Debug, Display, Formatter};
@@ -31,7 +31,7 @@ pub trait DebugSetExt {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```rust
     /// use display_as_debug::fmt::DebugSetExt;
     /// use display_as_debug::types::TestValue;
     /// use std::collections::BTreeSet;
@@ -45,7 +45,9 @@ pub trait DebugSetExt {
     ///     }
     /// }
     ///
-    /// assert_eq!(format!("{:?}", Set(BTreeSet::from([TestValue(1), TestValue(2)]))), "{Display(1), Display(2)}");
+    /// let set = Set(BTreeSet::from([TestValue(1), TestValue(2)]));
+    ///
+    /// assert_eq!(format!("{:?}", set), "{Display(1), Display(2)}");
     /// ```
     fn entries_display<I: IntoIterator<Item: Display>>(&mut self, iter: I) -> &mut Self;
 }

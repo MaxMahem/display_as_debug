@@ -6,7 +6,7 @@ mod test_value;
 mod type_name;
 mod type_name_list;
 
-pub use opaque::Opaque;
+pub use opaque::{OPAQUE, Opaque};
 pub use opaque_list::OpaqueList;
 pub use test_value::TestValue;
 pub use type_name::{DisplayMode, Full, Short, TypeName};

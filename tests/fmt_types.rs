@@ -41,11 +41,13 @@ mod type_name {
 
 mod opaque {
     use super::*;
-    use display_as_debug::types::Opaque;
+    use display_as_debug::types::{OPAQUE, Opaque};
 
     const EXPECTED: &str = "..";
 
-    test_fmt!(new, Opaque, "{:?}", EXPECTED);
+    test_fmt!(default, Opaque::DEFAULT, "{:?}", EXPECTED);
+    test_fmt!(opaque, OPAQUE, "{:?}", EXPECTED);
+    test_fmt!(wrap, Opaque("secret"), "{:?}", EXPECTED);
 }
 
 mod opaque_list {
@@ -73,6 +75,7 @@ mod type_name_list {
         test_fmt!(new, TypeNameList::<String, Short>::new(100), "{:?}", EXPECTED);
         test_fmt!(of, TypeNameList::<String, Short>::of(0..100), "{:?}", EXPECTED);
         test_fmt!(from, TypeNameList::<String, Short>::from(0..100), "{:?}", EXPECTED);
+        test_fmt!(display, TypeNameList::<String, Short>::of(0..100), "{}", EXPECTED);
     }
 
     mod full {

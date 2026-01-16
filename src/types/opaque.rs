@@ -1,6 +1,9 @@
 use core::fmt::{Debug, Display, Formatter};
 
-/// A marker type that formats as `..` when used in `Debug` contexts.
+use derive_more::{AsMut, AsRef, Deref, From};
+
+/// A wrapper type that formats as `..` when used in `Debug` contexts,
+/// obscuring the inner value.
 ///
 /// This is useful for hiding sensitive or verbose data in debug output while
 /// still indicating that a value exists.
@@ -8,38 +11,44 @@ use core::fmt::{Debug, Display, Formatter};
 /// # Examples
 ///
 /// ```rust
-/// use display_as_debug::types::Opaque;
-/// use std::fmt::{Debug, Formatter};
+/// # use display_as_debug::types::{OPAQUE, Opaque};
+/// assert_eq!(format!("{:?}", OPAQUE), "..", "Debug format should be opaque");
+/// assert_eq!(format!("{}", OPAQUE), "..", "Display format should be opaque");
 ///
-/// struct Credentials {
-///     password: String,
-/// }
-///
-/// impl Debug for Credentials {
-///     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-///         f.debug_struct("Credentials")
-///             .field("password", &Opaque)
-///             .finish()
-///     }
-/// }
-///
-/// let creds = Credentials { password: "secret".into() };
-///
-/// assert_eq!(format!("{:?}", creds), "Credentials { password: .. }");
+/// assert_eq!(format!("{:?}", Opaque("secret")), "..", "Debug format should be opaque");
+/// assert_eq!(format!("{}", Opaque("secret")), "..", "Display format should be opaque");
 /// ```
-#[derive(Copy, Clone)]
-pub struct Opaque;
+#[derive(Copy, Clone, Deref, From, AsMut, AsRef, Default)]
+pub struct Opaque<T = ()>(pub T);
 
-/// The string reprsentation of [`Opaque`]
-const OPAQUE: &str = "..";
+/// An obscure marker value that formats as `..` when used in [`Debug`] or [`Display`].
+///
+/// # Examples
+///
+/// ```rust
+/// # use display_as_debug::types::{OPAQUE, Opaque};
+/// assert_eq!(format!("{:?}", OPAQUE), "..", "Debug format should be opaque");
+/// assert_eq!(format!("{}", OPAQUE), "..", "Display format should be opaque");
+/// ```
+pub const OPAQUE: Opaque<()> = Opaque::DEFAULT;
 
-impl Debug for Opaque {
+impl Opaque<()> {
+    /// The default value for [`Opaque`]
+    pub const DEFAULT: Self = Self(());
+}
+
+impl<T> Opaque<T> {
+    /// The string representation of [`Opaque::DEFAULT`]/[`OPAQUE`]
+    pub const OPAQUE_STR: &str = "..";
+}
+
+impl<T> Debug for Opaque<T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
-        f.write_str(OPAQUE)
+        f.write_str(Self::OPAQUE_STR)
     }
 }
 
-impl Display for Opaque {
+impl<T> Display for Opaque<T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         Debug::fmt(self, f)
     }
