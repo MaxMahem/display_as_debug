@@ -28,7 +28,7 @@ pub trait DebugMapExt {
     ///
     /// assert_eq!(format!("{:?}", SingletonMap(1, TestValue::DEFAULT)), "{1: Display(())}");
     /// ```
-    fn entry_display<K: Debug, V: Display>(&mut self, key: &K, value: &V) -> &mut Self;
+    fn entry_display(&mut self, key: &dyn Debug, value: &dyn Display) -> &mut Self;
 
     /// Adds an entry with the key using [`Display`] and an opaque value showing `".."`.
     ///
@@ -50,7 +50,7 @@ pub trait DebugMapExt {
     ///
     /// assert_eq!(format!("{:?}", SingleCred(1, "secret")), "{1: ..}");
     /// ```
-    fn entry_opaque<K: Debug>(&mut self, key: &K) -> &mut Self;
+    fn entry_opaque(&mut self, key: &dyn Debug) -> &mut Self;
 
     /// Adds multiple entries using their [`Display`] implementations for values.
     ///
@@ -91,7 +91,7 @@ pub trait DebugMapExt {
     ///
     /// impl Debug for Credentials {
     ///     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-    ///         f.debug_map().entries_opaque(self.0.keys()).finish()
+    ///         f.debug_map().entries_opaque(&self.0).finish()
     ///     }
     /// }
     ///
@@ -99,16 +99,18 @@ pub trait DebugMapExt {
     ///
     /// assert_eq!(format!("{:?}", credentials), "{1: .., 2: ..}");
     /// ```
-    fn entries_opaque<I: IntoIterator<Item: Debug>>(&mut self, iter: I) -> &mut Self;
+    fn entries_opaque<K: Debug, V, I>(&mut self, iter: I) -> &mut Self
+    where
+        I: IntoIterator<Item = (K, V)>;
 }
 
 #[sealed::sealed]
 impl DebugMapExt for DebugMap<'_, '_> {
-    fn entry_display<K: Debug, V: Display>(&mut self, key: &K, value: &V) -> &mut Self {
-        self.entry(&key, &value.display_as_debug())
+    fn entry_display(&mut self, key: &dyn Debug, value: &dyn Display) -> &mut Self {
+        self.entry(key, &value.display_as_debug())
     }
 
-    fn entry_opaque<K: Debug>(&mut self, key: &K) -> &mut Self {
+    fn entry_opaque(&mut self, key: &dyn Debug) -> &mut Self {
         self.entry(key, &Opaque)
     }
 
@@ -119,7 +121,10 @@ impl DebugMapExt for DebugMap<'_, '_> {
         iter.into_iter().fold_mut(self, |this, (key, value)| _ = this.entry_display(&key, &value))
     }
 
-    fn entries_opaque<I: IntoIterator<Item: Debug>>(&mut self, iter: I) -> &mut Self {
-        iter.into_iter().fold_mut(self, |this, key| _ = this.entry_opaque(&key))
+    fn entries_opaque<K: Debug, V, I>(&mut self, iter: I) -> &mut Self
+    where
+        I: IntoIterator<Item = (K, V)>,
+    {
+        iter.into_iter().fold_mut(self, |this, (key, _)| _ = this.entry_opaque(&key))
     }
 }

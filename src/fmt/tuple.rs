@@ -25,7 +25,7 @@ pub trait DebugTupleExt {
     ///
     /// assert_eq!(format!("{:?}", Container(TestValue::DEFAULT)), "Container(Display(()))");
     /// ```
-    fn field_display<T: Display>(&mut self, value: &T) -> &mut Self;
+    fn field_display(&mut self, value: &dyn Display) -> &mut Self;
 
     /// Adds a field showing the type name instead of the value, using the specified [`DisplayMode`].
     ///
@@ -73,7 +73,7 @@ pub trait DebugTupleExt {
 
 #[sealed::sealed]
 impl DebugTupleExt for DebugTuple<'_, '_> {
-    fn field_display<T: Display>(&mut self, value: &T) -> &mut Self {
+    fn field_display(&mut self, value: &dyn Display) -> &mut Self {
         self.field(&value.display_as_debug())
     }
 

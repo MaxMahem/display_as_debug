@@ -18,13 +18,13 @@ use super::type_name::{DisplayMode, TypeName};
 pub struct TypeNameList<T, M>(usize, PhantomData<(T, M)>);
 
 impl<T, M> TypeNameList<T, M> {
-    /// Creates a new `TypeNameList` with the given count.
+    /// Creates a new [`TypeNameList`] with the given `count`.
     #[must_use]
-    pub const fn new(len: usize) -> Self {
-        Self(len, PhantomData)
+    pub const fn new(count: usize) -> Self {
+        Self(count, PhantomData)
     }
 
-    /// Creates a new `TypeNameList` from an iterator with an exact size.
+    /// Creates a new [`TypeNameList`] from an iterator with an exact size.
     ///
     /// # Example
     ///
@@ -54,5 +54,11 @@ where
 {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         Debug::fmt(self, f)
+    }
+}
+
+impl<I: IntoIterator<IntoIter: ExactSizeIterator>, T, M: DisplayMode> From<I> for TypeNameList<T, M> {
+    fn from(iter: I) -> Self {
+        Self(iter.into_iter().len(), PhantomData)
     }
 }

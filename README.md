@@ -29,7 +29,7 @@ It's on [crates.io](https://crates.io/crates/display_as_debug).
 
 ## Examples
 
-Basic Usage
+### Basic Usage
 
 ```rust
 use display_as_debug::types::TestValue;
@@ -49,49 +49,13 @@ assert_eq!(format!("{:?}", TestValue::DEFAULT.debug_as_display()), "Debug(())", 
 
 ### Returning Friendly Errors from `main()`
 
-When `main()` returns a `Result<(), E>`, Rust prints errors using their `Debug` implementation, which can be verbose and technical. Use `DisplayForDebug` to show user-friendly error messages instead:
+When `main()` returns a `Result<(), E>`, Rust prints errors using their `Debug` implementation, which can be verbose and technical. Use `DisplayAsDebug` to show user-friendly error messages instead:
 
 See [examples/error_from_main.rs](examples/error_from_main.rs) for a complete working example.
 
-## Structure and Tuple Extensions
-
-The `DebugStructExt` and `DebugTupleExt` extension traits provide a cleaner API for implementing `Debug` manually:
-
-```rust
-use display_as_debug::fmt::{DebugStructExt, DebugTupleExt};
-use display_as_debug::types::{Short, Full};
-
-struct Secret {
-    id: u32,
-    key: String,
-    payload: Vec<u8>,
-}
-
-impl std::fmt::Debug for Secret {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("Secret")
-            .field_display("id", &self.id)        // Use Display impl
-            .field_opaque("key")                  // Hide value: "key: .."
-            .field_type::<Vec<u8>, Short>("payload") // Show type: "payload: Vec<u8>"
-            .finish()
-    }
-}
-
-struct Wrapper<T>(T);
-
-impl<T> std::fmt::Debug for Wrapper<T> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_tuple("Wrapper")
-            .field_type::<T, Full>()  // Show full type path
-            .field_opaque()           // Tuple opaque field
-            .finish()
-    }
-}
-```
-
 ### Using Debug as Display
 
-The inverse wrappers (`DebugDisplay`, `AsDebugForDisplay`, `DebugForDisplay`) let you use `Debug` implementations where `Display` is needed:
+The inverse wrappers (`DebugDisplay`, `DebugAsDisplay`) let you use `Debug` implementations where `Display` is needed:
 
 ```rust
 use display_as_debug::display::DebugDisplay;
@@ -101,17 +65,51 @@ let formatted = format!("Numbers: {}", numbers.debug_as_display());
 assert_eq!(formatted, "Numbers: [1, 2, 3]");
 ```
 
+## Debug extensions
+
+The `fmt` module contains extension traits for the various `std::fmt` `DebugXXX` helper types to extend their functionality.
+
+### `DebugStructExt`
+
+```rust
+use display_as_debug::fmt::DebugStructExt;
+use display_as_debug::types::{Short, Full};
+use std::fmt::{Formatter, Debug};
+
+struct Secret {
+    id: u32,
+    key: &'static str,
+    payload: Vec<u8>,
+}
+
+impl Debug for Secret {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Secret")
+            .field_display("id", &self.id)
+            .field_opaque("key")
+            .field_type::<Vec<u8>, Short>("payload")
+            .finish()
+    }
+}
+
+let secret = Secret { id: 42, key: "secret", payload: vec![1, 2, 3] };
+
+assert_eq!(format!("{:?}", secret), "Secret { id: 42, key: .., payload: Vec<u8> }");
+```
+
+`DebugTupleExt` has a similar API.
+
 ## Option and Result Wrappers
 
-For situations where you need to debug `Option` or `Result` types but don't want to expose sensitive data or the inner type doesn't implement `Debug`:
+The `option` and `result` modules provide wrappers for `Option` and `Result` types that work without requiring `T: Debug`.
 
 ### Type Name Wrappers
 
 Show the type name instead of the actual value:
 
 ```rust
-use display_as_debug::option::OptionDebugExt;
-use display_as_debug::result::ResultDebugExt;
+use display_as_debug::option::DebugOption;
+use display_as_debug::result::DebugResult;
 use display_as_debug::types::{Full, Short};
 
 let opt = Some(42);
@@ -127,8 +125,8 @@ assert_eq!(format!("{:?}", res.debug_type_name::<Short>()), "Ok(String)");
 Hide the value completely while preserving the variant information:
 
 ```rust
-use display_as_debug::option::OptionDebugExt;
-use display_as_debug::result::ResultDebugExt;
+use display_as_debug::option::DebugOption;
+use display_as_debug::result::DebugResult;
 
 let opt = Some("sensitive data");
 assert_eq!(format!("{:?}", opt.debug_opaque()), "Some(..)");
@@ -142,3 +140,7 @@ assert_eq!(format!("{:?}", err.debug_opaque()), "Err(\"connection failed\")");
 ```
 
 These are especially useful for logging and debugging where you want to know the state of an `Option` or `Result` without exposing potentially sensitive data.
+
+## Debug Formatting Types
+
+Lastly the `types` module provides a set of types that can be used to convey various debug formatting information, such as type names, opaque values, and lists.

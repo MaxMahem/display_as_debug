@@ -10,22 +10,22 @@ use super::Opaque;
 /// # Example
 ///
 /// ```
-/// # use display_as_debug::types::ObscureList;
-/// assert_eq!(format!("{:?}", ObscureList(100)), "[..: 100]");
-/// assert_eq!(format!("{}", ObscureList(100)), "[..: 100]");
+/// # use display_as_debug::types::OpaqueList;
+/// assert_eq!(format!("{:?}", OpaqueList(100)), "[..: 100]");
+/// assert_eq!(format!("{}", OpaqueList(100)), "[..: 100]");
 /// ```
 #[derive(Clone, Copy, PartialEq, Eq)]
-pub struct ObscureList(pub usize);
+pub struct OpaqueList(pub usize);
 
-impl ObscureList {
-    /// Creates a new `ObscureList` from an iterator with an exact size.
+impl OpaqueList {
+    /// Creates a new [`OpaqueList`] from an iterator with an exact size.
     ///
     /// # Example
     ///
     /// ```
-    /// # use display_as_debug::types::ObscureList;
+    /// # use display_as_debug::types::OpaqueList;
     /// let items = vec![1, 2, 3, 4, 5];
-    /// assert_eq!(format!("{:?}", ObscureList::of(&items)), "[..: 5]");
+    /// assert_eq!(format!("{:?}", OpaqueList::of(&items)), "[..: 5]");
     /// ```
     #[must_use]
     pub fn of<I: IntoIterator<IntoIter: ExactSizeIterator>>(iter: I) -> Self {
@@ -33,19 +33,19 @@ impl ObscureList {
     }
 }
 
-impl Debug for ObscureList {
+impl Debug for OpaqueList {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(f, "[{Opaque}: {}]", self.0)
     }
 }
 
-impl Display for ObscureList {
+impl Display for OpaqueList {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         Debug::fmt(self, f)
     }
 }
 
-impl<I: IntoIterator<IntoIter: ExactSizeIterator>> From<I> for ObscureList {
+impl<I: IntoIterator<IntoIter: ExactSizeIterator>> From<I> for OpaqueList {
     fn from(iter: I) -> Self {
         Self(iter.into_iter().len())
     }

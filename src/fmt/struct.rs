@@ -27,7 +27,7 @@ pub trait DebugStructExt {
     ///
     /// assert_eq!(format!("{:?}", data), "Data { value: Display(()) }");
     /// ```
-    fn field_display<T: Display>(&mut self, name: &str, value: &T) -> &mut Self;
+    fn field_display(&mut self, name: &str, value: &dyn Display) -> &mut Self;
 
     /// Adds a field showing the type name instead of the value, using the specified [`DisplayMode`].
     ///
@@ -82,7 +82,7 @@ pub trait DebugStructExt {
 
 #[sealed::sealed]
 impl DebugStructExt for DebugStruct<'_, '_> {
-    fn field_display<T: Display>(&mut self, name: &str, value: &T) -> &mut Self {
+    fn field_display(&mut self, name: &str, value: &dyn Display) -> &mut Self {
         self.field(name, &value.display_as_debug())
     }
 

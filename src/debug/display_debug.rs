@@ -1,11 +1,11 @@
 use core::fmt::Display;
 
-use crate::debug::{DisplayAsDebug, DisplayForDebug};
+use crate::debug::DisplayAsDebug;
 
 /// A trait to convert a type to use its [`Display`] implementation for [`Debug`].
 #[sealed::sealed]
 pub trait DisplayDebug: Display {
-    /// Wraps a borrowed value in a [`DisplayForDebug`] adaptor that enable the values [`Display`]
+    /// Wraps a value in a [`DisplayAsDebug`] adaptor that enables the value's [`Display`]
     /// implementation to be used for its [`Debug`] implementation.
     ///
     /// # Examples
@@ -18,30 +18,8 @@ pub trait DisplayDebug: Display {
     /// assert_eq!(format!("{:?}", test), r#"Display("test")"#, "display used for debug");
     /// assert_eq!(format!("{}", test), r#"Display("test")"#, "display unchanged");
     /// ```
-    fn display_as_debug(&'_ self) -> DisplayAsDebug<'_, Self> {
+    fn display_as_debug(&self) -> DisplayAsDebug<&Self> {
         DisplayAsDebug(self)
-    }
-
-    /// Wraps a owned value in a [`DisplayForDebug`] adaptor that enable the values [`Display`]
-    /// implementation to be used for its [`Debug`] implementation.
-    ///
-    /// Unless ownership is not necessary, favor [`DisplayDebug::display_as_debug`].
-    ///
-    /// ```rust
-    /// use display_as_debug::debug::DisplayDebug;
-    /// use display_as_debug::types::TestValue;
-    ///
-    /// let debug_val = TestValue("test").wrap_display_as_debug();
-    /// let display_val = TestValue("test").wrap_display_as_debug();
-    ///
-    /// assert_eq!(format!("{:?}", debug_val), r#"Display("test")"#, "display used for debug");
-    /// assert_eq!(format!("{}", display_val), r#"Display("test")"#, "display unchanged");
-    /// ```
-    fn wrap_display_as_debug(self) -> DisplayForDebug<Self>
-    where
-        Self: Sized,
-    {
-        DisplayForDebug(self)
     }
 }
 

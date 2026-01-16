@@ -1,27 +1,18 @@
 //! Integration tests for wrapper types using std::io::Error
-//!
-//! This module provides shared test macros for all wrapper types and contains
-//! separate test modules for each wrapper implementation.
 
 mod common;
 
 use std::io::Error;
+
+use display_as_debug::types::{Full, Short, TestValue};
 
 use crate::common::*;
 
 /// The test error message used across all tests
 const ERROR_MSG: &str = "test error";
 
-/// The expected Debug representation of io::Error::other("test error")
-/// Used by DebugForDisplay and AsDebugDisplay wrappers
-const EXPECTED_DEBUG: &str = r#"Custom { kind: Other, error: "test error" }"#;
-
-/// The expected Display representation of io::Error::other("test error")
-/// Used by DisplayForDebug and AsDisplayDebug wrappers
-const EXPECTED_DISPLAY: &str = "test error";
-
 macro_rules! test_source {
-    (owned $ctor:expr) => {
+    ($ctor:expr) => {
         #[test]
         fn source() {
             use std::error::Error as StdError;
@@ -30,65 +21,102 @@ macro_rules! test_source {
             assert!(wrapped.source().is_none());
         }
     };
-    (borrow $ctor:expr) => {
-        #[test]
-        fn source() {
-            use std::error::Error as StdError;
-            let error = Error::other(ERROR_MSG);
-            let wrapped = $ctor(&error);
-            assert!(wrapped.source().is_none());
-        }
-    };
 }
 
-mod debug_displayed {
+mod debug_as_display_test {
     use super::*;
-    use display_as_debug::display::DebugForDisplay;
+    use display_as_debug::display::{DebugAsDisplay, DebugDisplay};
 
-    test_fmt!(display, DebugForDisplay(Error::other(ERROR_MSG)), "{}", EXPECTED_DEBUG);
-    test_fmt!(debug, DebugForDisplay(Error::other(ERROR_MSG)), "{:?}", EXPECTED_DEBUG);
-    test_source!(owned DebugForDisplay);
+    const EXPECTED_DEBUG: &str = r#"Debug("test")"#;
+
+    test_fmt!(display, DebugAsDisplay(TestValue::TEST), "{}", EXPECTED_DEBUG);
+    test_fmt!(debug, DebugAsDisplay(TestValue::TEST), "{:?}", EXPECTED_DEBUG);
+    test_source!(DebugAsDisplay);
+
+    test_fmt!(ext_display, TestValue::TEST.debug_as_display(), "{}", EXPECTED_DEBUG);
+    test_fmt!(ext_debug, TestValue::TEST.debug_as_display(), "{:?}", EXPECTED_DEBUG);
 }
 
-mod debug_display {
+mod display_as_debug_test {
     use super::*;
-    use display_as_debug::display::DebugDisplay;
+    use display_as_debug::debug::{DisplayAsDebug, DisplayDebug};
 
-    test_fmt!(borrowed, Error::other(ERROR_MSG).debug_as_display(), "{}", EXPECTED_DEBUG);
-    test_fmt!(owned, Error::other(ERROR_MSG).wrap_debug_as_display(), "{}", EXPECTED_DEBUG);
+    const EXPECTED_DISPLAY: &str = r#"Display("test")"#;
+
+    test_fmt!(display, DisplayAsDebug(TestValue::TEST), "{}", EXPECTED_DISPLAY);
+    test_fmt!(debug, DisplayAsDebug(TestValue::TEST), "{:?}", EXPECTED_DISPLAY);
+    test_source!(DisplayAsDebug);
+
+    test_fmt!(ext_display, TestValue::TEST.display_as_debug(), "{}", EXPECTED_DISPLAY);
+    test_fmt!(ext_debug, TestValue::TEST.display_as_debug(), "{:?}", EXPECTED_DISPLAY);
 }
 
-mod as_debug_display {
+mod opaque_result {
     use super::*;
-    use display_as_debug::display::DebugAsDisplay;
+    use display_as_debug::result::OpaqueResult;
 
-    test_fmt!(display, DebugAsDisplay(&Error::other(ERROR_MSG)), "{}", EXPECTED_DEBUG);
-    test_fmt!(debug, DebugAsDisplay(&Error::other(ERROR_MSG)), "{:?}", EXPECTED_DEBUG);
-    test_source!(borrow DebugAsDisplay);
+    test_fmt!(ok, OpaqueResult(&Ok::<i32, String>(42)), "{:?}", "Ok(..)");
+    test_fmt!(err, OpaqueResult(&Err::<i32, &str>("error message")), "{:?}", "Err(\"error message\")");
 }
 
-mod display_debugged {
+mod type_result {
     use super::*;
-    use display_as_debug::debug::DisplayForDebug;
+    use display_as_debug::result::TypeNameResult;
 
-    test_fmt!(display, DisplayForDebug(Error::other(ERROR_MSG)), "{}", EXPECTED_DISPLAY);
-    test_fmt!(debug, DisplayForDebug(Error::other(ERROR_MSG)), "{:?}", EXPECTED_DISPLAY);
-    test_source!(owned DisplayForDebug);
+    const EXPECTED_OK_FULL: &str = "Ok(alloc::vec::Vec<i32>)";
+    const EXPECTED_OK_SHORT: &str = "Ok(Vec<i32>)";
+    const EXPECTED_ERR: &str = "Err(42)";
+
+    test_fmt!(ok_full, TypeNameResult::new::<Full>(&Ok::<Vec<i32>, i32>(vec![])), "{:?}", EXPECTED_OK_FULL);
+    test_fmt!(ok_short, TypeNameResult::new::<Short>(&Ok::<Vec<i32>, i32>(vec![])), "{:?}", EXPECTED_OK_SHORT);
+    test_fmt!(err_full, TypeNameResult::new::<Full>(&Err::<Vec<i32>, i32>(42)), "{:?}", EXPECTED_ERR);
+    test_fmt!(err_short, TypeNameResult::new::<Short>(&Err::<Vec<i32>, i32>(42)), "{:?}", EXPECTED_ERR);
+    test_fmt!(from, TypeNameResult::from(&Ok::<Vec<i32>, i32>(vec![])), "{:?}", EXPECTED_OK_FULL);
 }
 
-mod display_debug {
+mod opaque_option {
     use super::*;
-    use display_as_debug::debug::DisplayDebug;
+    use display_as_debug::option::OpaqueOption;
 
-    test_fmt!(borrowed, Error::other(ERROR_MSG).display_as_debug(), "{}", EXPECTED_DISPLAY);
-    test_fmt!(owned, Error::other(ERROR_MSG).wrap_display_as_debug(), "{}", EXPECTED_DISPLAY);
+    const EXPECTED_SOME: &str = "Some(..)";
+    const EXPECTED_NONE: &str = "None";
+
+    test_fmt!(some, OpaqueOption(&Some(42)), "{:?}", EXPECTED_SOME);
+    test_fmt!(none, OpaqueOption(&None::<i32>), "{:?}", EXPECTED_NONE);
 }
 
-mod as_display_debug {
+mod type_option {
     use super::*;
-    use display_as_debug::debug::DisplayAsDebug;
+    use display_as_debug::option::TypeNameOption;
 
-    test_fmt!(display, DisplayAsDebug(&std::io::Error::other(ERROR_MSG)), "{}", EXPECTED_DISPLAY);
-    test_fmt!(debug, DisplayAsDebug(&std::io::Error::other(ERROR_MSG)), "{:?}", EXPECTED_DISPLAY);
-    test_source!(borrow DisplayAsDebug);
+    const EXPECTED_SOME_FULL: &str = "Some(alloc::vec::Vec<i32>)";
+    const EXPECTED_SOME_SHORT: &str = "Some(Vec<i32>)";
+    const EXPECTED_NONE: &str = "None";
+
+    test_fmt!(some_full, TypeNameOption::new::<Full>(&Some(vec![1])), "{:?}", EXPECTED_SOME_FULL);
+    test_fmt!(some_short, TypeNameOption::new::<Short>(&Some(vec![1])), "{:?}", EXPECTED_SOME_SHORT);
+    test_fmt!(none, TypeNameOption::new::<Full>(&None::<i32>), "{:?}", EXPECTED_NONE);
+    test_fmt!(from, TypeNameOption::<_, Full>::from(&Some(vec![1])), "{:?}", EXPECTED_SOME_FULL);
+}
+
+mod option_extension {
+    use super::*;
+    use display_as_debug::option::DebugOption;
+
+    test_fmt!(opaque_debug_some, Some(42).debug_opaque(), "{:?}", "Some(..)");
+    test_fmt!(opaque_debug_none, None::<i32>.debug_opaque(), "{:?}", "None");
+    test_fmt!(type_debug_some_full, Some(vec![1]).debug_type_name::<Full>(), "{:?}", "Some(alloc::vec::Vec<i32>)");
+    test_fmt!(type_debug_some_short, Some(vec![1]).debug_type_name::<Short>(), "{:?}", "Some(Vec<i32>)");
+    test_fmt!(type_debug_none_full, None::<i32>.debug_type_name::<Full>(), "{:?}", "None");
+    test_fmt!(type_debug_none_short, None::<i32>.debug_type_name::<Short>(), "{:?}", "None");
+}
+
+mod result_extension {
+    use super::*;
+    use display_as_debug::result::DebugResult;
+
+    test_fmt!(opaque_debug_ok, Ok::<i32, &str>(42).debug_opaque(), "{:?}", "Ok(..)");
+    test_fmt!(opaque_debug_err, Err::<i32, &str>("error message").debug_opaque(), "{:?}", "Err(\"error message\")");
+    test_fmt!(type_debug_ok, Ok::<i32, &str>(42).debug_type_name::<Full>(), "{:?}", "Ok(i32)");
+    test_fmt!(type_debug_err, Err::<i32, i32>(404).debug_type_name::<Full>(), "{:?}", "Err(404)");
 }

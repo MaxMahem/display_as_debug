@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.4.0] - 01/14/2026
+## [0.4.0] - 01/16/2026
 
 ### Added
 
@@ -40,6 +40,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **`DebugSetExt` trait**: Extension trait for `std::fmt::DebugSet` providing convenient entry formatting methods:
     - `entry_display()` - Uses the `Display` implementation for a value in an entry
     - `entries_display()` - Uses the `Display` implementation for an iterator of values in an entry
+- **`From<T>` implementations**: Added `From<T>` for all wrapper types enabling `.into()` conversions.
+- **`Deref`/`AsRef`/`AsMut` implementations**: Added for all wrapper types to enable transparent access to wrapped values.
+- **Standard trait implementations**: All wrapper types now implement `Copy`, `Clone`, `PartialEq`, `Eq`, `PartialOrd`, `Ord`, and `Hash` where applicable, enabling use as collection keys.
 
 ### Changed
 
@@ -47,22 +50,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `debug_type` → `debug_type_name`
   - `as_debug()` → `display_as_debug()`
   - `as_display()` → `debug_as_display()`
-  - `to_debug()` → `wrap_display_as_debug()`
-  - `to_display()` → `wrap_debug_as_display()`
   - `AsDebugDisplay` → `DebugAsDisplay`
   - `AsDisplayDebug` → `DisplayAsDebug`
-  - `DisplayDebugged` → `DisplayForDebug`
-  - `DebugDisplay` → `DebugForDisplay`
   - `OpaqueResultDbg` → `OpaqueResult`
   - `OpaqueOptionDbg` → `OpaqueOption`
   - `OptionTypeDebug` → `TypeNameOption`
   - `ResultTypeDebug` → `TypeNameResult`
+  - `OptionDebugExt` → `DebugOption`
+  - `ResultDebugExt` → `DebugResult`
 - **BREAKING**: Reorganized module structure. Types are now exported through their respective submodules:
   - `debug` module - for wrapping types implementing `Display` to use their `Display` implementation for `Debug`
-    - Contains: `DisplayDebug` trait, `AsDisplayWrapper`, `DisplayWrapper`
+    - Contains: `DisplayDebug` trait, `DisplayAsDebug` struct.
   - `display` module - for wrapping types implementing `Debug` to use their `Debug` implementation for `Display`
-    - Contains: `DebugDisplay` trait, `AsDebugWrapper`, `DebugWrapper`
-  - **Migration**: Update imports from `use display_as_debug::DisplayAsDebug` to `use display_as_debug::debug::DisplayDebug` (and similarly for other types)
+    - Contains: `DebugDisplay` trait, `DebugAsDisplay` struct.
+  - **Migration**: Update imports to use the new names.
+
+### Removed
+
+- **BREAKING**: Removed `DisplayDebuged` and `DebugedDisplay` as associated extension wrappers.
+  - **Migration**: `DisplayAsDebug` and `DebugAsDisplay` should cover this usecase.
 
 ## [0.3.0] - 01/07/2026
 

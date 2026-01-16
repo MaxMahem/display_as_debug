@@ -10,66 +10,56 @@ pub trait DebugListExt {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```rust
     /// use display_as_debug::fmt::DebugListExt;
     /// use display_as_debug::types::TestValue;
     /// use std::fmt::{Debug, Formatter};
     ///
-    /// struct Test(Vec<TestValue>);
+    /// struct SingleItemList(TestValue);
     ///
-    /// impl Debug for Test {
+    /// impl Debug for SingleItemList {
     ///     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-    ///         let mut list = f.debug_list();
-    ///         for value in &self.0 {
-    ///             list.entry_display(value);
-    ///         }
-    ///         list.finish()
+    ///         f.debug_list().entry_display(&self.0).finish()
     ///     }
     /// }
     ///
-    /// let test = Test(vec![TestValue::DEFAULT, TestValue::DEFAULT]);
+    /// let list = SingleItemList(TestValue::DEFAULT);
     ///
-    /// assert_eq!(format!("{:?}", test), "[Display(()), Display(())]");
+    /// assert_eq!(format!("{list:?}"), "[Display(())]");
     /// ```
-    fn entry_display<T: Display>(&mut self, value: &T) -> &mut Self;
+    fn entry_display(&mut self, value: &dyn Display) -> &mut Self;
 
     /// Adds multiple entries using their [`Display`] implementations instead of [`Debug`].
     ///
     /// # Example
     ///
-    /// ```
+    /// ```rust
     /// use display_as_debug::fmt::DebugListExt;
     /// use display_as_debug::types::TestValue;
     /// use std::fmt::{Debug, Formatter};
     ///
-    /// struct Test(Vec<TestValue>);
+    /// struct List(Vec<TestValue>);
     ///
-    /// impl Debug for Test {
+    /// impl Debug for List {
     ///     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-    ///         f.debug_list()
-    ///             .entries_display(&self.0)
-    ///             .finish()
+    ///         f.debug_list().entries_display(&self.0).finish()
     ///     }
     /// }
     ///
-    /// let test = Test(vec![TestValue::DEFAULT, TestValue::DEFAULT]);
+    /// let list = List(vec![TestValue::DEFAULT, TestValue::DEFAULT]);
     ///
-    /// assert_eq!(format!("{:?}", test), "[Display(()), Display(())]");
+    /// assert_eq!(format!("{:?}", list), "[Display(()), Display(())]");
     /// ```
-    fn entries_display<'a, T: Display + 'a, I: IntoIterator<Item = &'a T>>(&mut self, iter: I) -> &mut Self;
+    fn entries_display<I: IntoIterator<Item: Display>>(&mut self, iter: I) -> &mut Self;
 }
 
 #[sealed::sealed]
 impl DebugListExt for DebugList<'_, '_> {
-    fn entry_display<T: Display>(&mut self, value: &T) -> &mut Self {
+    fn entry_display(&mut self, value: &dyn Display) -> &mut Self {
         self.entry(&DisplayAsDebug(value))
     }
 
-    fn entries_display<'a, T, I>(&mut self, iter: I) -> &mut Self
-    where
-        T: Display + 'a,
-        I: IntoIterator<Item = &'a T>,
-    {
-        iter.into_iter().fold_mut(self, |this, item| _ = this.entry_display(item))
+    fn entries_display<I: IntoIterator<Item: Display>>(&mut self, iter: I) -> &mut Self {
+        iter.into_iter().fold_mut(self, |this, item| _ = this.entry_display(&item))
     }
 }

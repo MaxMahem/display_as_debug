@@ -25,7 +25,7 @@ pub trait DebugSetExt {
     ///
     /// assert_eq!(format!("{:?}", SingletonSet(TestValue(1))), "{Display(1)}");
     /// ```
-    fn entry_display<T: Display>(&mut self, value: &T) -> &mut Self;
+    fn entry_display(&mut self, value: &dyn Display) -> &mut Self;
 
     /// Adds multiple entries using their [`Display`] implementations instead of [`Debug`].
     ///
@@ -47,20 +47,16 @@ pub trait DebugSetExt {
     ///
     /// assert_eq!(format!("{:?}", Set(BTreeSet::from([TestValue(1), TestValue(2)]))), "{Display(1), Display(2)}");
     /// ```
-    fn entries_display<'a, T: Display + 'a, I: IntoIterator<Item = &'a T>>(&mut self, iter: I) -> &mut Self;
+    fn entries_display<I: IntoIterator<Item: Display>>(&mut self, iter: I) -> &mut Self;
 }
 
 #[sealed::sealed]
 impl DebugSetExt for DebugSet<'_, '_> {
-    fn entry_display<T: Display>(&mut self, value: &T) -> &mut Self {
+    fn entry_display(&mut self, value: &dyn Display) -> &mut Self {
         self.entry(&DisplayAsDebug(value))
     }
 
-    fn entries_display<'a, T, I>(&mut self, iter: I) -> &mut Self
-    where
-        T: Display + 'a,
-        I: IntoIterator<Item = &'a T>,
-    {
-        iter.into_iter().fold_mut(self, |this, item| _ = this.entry_display(item))
+    fn entries_display<I: IntoIterator<Item: Display>>(&mut self, iter: I) -> &mut Self {
+        iter.into_iter().fold_mut(self, |this, item| _ = this.entry_display(&item))
     }
 }

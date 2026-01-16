@@ -3,7 +3,7 @@ use crate::types::DisplayMode;
 
 /// Extension trait providing convenience methods for debugging [`Result`] values.
 #[sealed::sealed]
-pub trait ResultDebugExt<T, E> {
+pub trait DebugResult<T, E> {
     /// Returns a wrapper that implements [`Debug`] with opaque Ok values.
     ///
     /// Displays as `Ok(..)` when the result is [`Ok`], for [`Err`] the [`Debug`]
@@ -12,7 +12,7 @@ pub trait ResultDebugExt<T, E> {
     /// # Examples
     ///
     /// ```rust
-    /// # use display_as_debug::result::ResultDebugExt;
+    /// # use display_as_debug::result::DebugResult;
     /// assert_eq!(format!("{:?}", Ok::<_, &str>(42).debug_opaque()), "Ok(..)");
     /// assert_eq!(format!("{:?}", Err::<i32, _>("failed").debug_opaque()), r#"Err("failed")"#);
     /// ```
@@ -26,7 +26,7 @@ pub trait ResultDebugExt<T, E> {
     /// # Examples
     ///
     /// ```rust
-    /// use display_as_debug::result::ResultDebugExt;
+    /// use display_as_debug::result::DebugResult;
     /// use display_as_debug::types::{Full, Short};
     ///
     /// assert_eq!(format!("{:?}", Ok::<_, &str>(vec![1]).debug_type_name::<Full>()), "Ok(alloc::vec::Vec<i32>)");
@@ -38,7 +38,7 @@ pub trait ResultDebugExt<T, E> {
 }
 
 #[sealed::sealed]
-impl<T, E> ResultDebugExt<T, E> for Result<T, E> {
+impl<T, E> DebugResult<T, E> for Result<T, E> {
     fn debug_opaque(&self) -> OpaqueResult<'_, T, E> {
         OpaqueResult(self)
     }
