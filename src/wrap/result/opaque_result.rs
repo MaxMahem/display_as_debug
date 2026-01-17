@@ -3,7 +3,7 @@ use core::fmt::{Debug, Formatter};
 use derive_more::{AsMut, AsRef, Deref, From};
 
 use crate::fmt::DebugTupleExt;
-use crate::result::{STR_ERR, STR_OK};
+use crate::wrap::result::{STR_ERR, STR_OK};
 
 /// A [`Result<T, E>`] wrapper that implements [`Debug`] with opaque Ok values.
 ///
@@ -13,7 +13,7 @@ use crate::result::{STR_ERR, STR_OK};
 /// # Examples
 ///
 /// ```rust
-/// # use display_as_debug::result::OpaqueResult;
+/// # use display_as_debug::wrap::OpaqueResult;
 /// assert_eq!(format!("{:?}", OpaqueResult(Ok::<_, &str>(42))), "Ok(..)");
 /// assert_eq!(format!("{:?}", OpaqueResult(Err::<i32, &str>("fail"))), r#"Err("fail")"#);
 ///

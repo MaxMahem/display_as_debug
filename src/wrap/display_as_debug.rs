@@ -6,15 +6,10 @@ use derive_more::{AsMut, AsRef, Deref, From};
 /// A type adaptor that enables a type's [`Display`] implementation to be used for its
 /// [`Debug`] implementation.
 ///
-/// This wrapper accepts both owned and borrowed values. For example:
-/// - `DisplayAsDebug("hello")` — wraps a `&str`
-/// - `DisplayAsDebug(String::from("hello"))` — wraps an owned `String`
-/// - `DisplayAsDebug(&my_string)` — wraps a `&String`
-///
 /// # Examples
 ///
 /// ```rust
-/// use display_as_debug::debug::DisplayAsDebug;
+/// use display_as_debug::wrap::DisplayAsDebug;
 /// use display_as_debug::types::TestValue;
 ///
 /// assert_eq!(format!("{:?}", DisplayAsDebug(&TestValue::TEST)), r#"Display("test")"#, "display used for debug");

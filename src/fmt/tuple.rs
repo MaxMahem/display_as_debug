@@ -1,7 +1,7 @@
 use core::fmt::{Debug, DebugTuple, Display};
 
-use crate::debug::DisplayAsDebug;
 use crate::types::{DisplayMode, OPAQUE, TypeName};
+use crate::wrap::DisplayAsDebug;
 
 /// Extension trait for [`DebugTuple`] providing convenient field formatting methods.
 #[sealed::sealed]

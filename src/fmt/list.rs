@@ -1,7 +1,7 @@
 use core::fmt::{DebugList, Display};
 
 use super::fold_mut::IteratorFoldMut;
-use crate::debug::DisplayAsDebug;
+use crate::wrap::DisplayAsDebug;
 
 /// Extension trait for [`DebugList`] providing convenient entry formatting methods.
 #[sealed::sealed]

@@ -15,11 +15,12 @@ This crate is `no_std` compatible and contains no `unsafe` code.
 
 ## Features
 
-- **Transparent wrapper types** (`DisplayAsDebug`, `DebugAsDisplay`) for swapping `Display` ↔ `Debug` implementations
-- **Specialized wrappers** for `Option<T>` and `Result<T, E>` that work without requiring `T: Debug`
-- **`DebugXXX` extensions** for conveniently formatting `std::fmt` `DebugXXX` debug helper types
-- **Obscuring `Option`/`Result` wrappers** for obscuring values while preserving variant information
-- **Various Format Types** for providing information for `Debug` and `Display`
+- **Formatting Wrappers** `wrap` module provides:
+  - `DisplayAsDebug`, `DebugAsDisplay` for swapping `Display` ↔ `Debug` implementations
+  - Specialized wrappers for `Option<T>` and `Result<T, E>` that work without requiring `T: Debug`
+  - Obscuring `Option`/`Result` wrappers for obscuring values while preserving variant information
+- **`DebugXXX` extensions** `fmt` module provides extensions for conveniently formatting `std::fmt` `DebugXXX` debug helper types
+- **Various Format Types** `types` module provides types for providing information for `Debug` and `Display`
 
 ## Installation
 
@@ -31,8 +32,8 @@ It's on [crates.io](https://crates.io/crates/display_as_debug).
 
 ```rust
 use display_as_debug::types::TestValue;
-use display_as_debug::debug::DisplayAsDebug;
-use display_as_debug::display::DebugAsDisplay;
+use display_as_debug::wrap::DisplayAsDebug;
+use display_as_debug::wrap::DebugAsDisplay;
 
 // `TestValue` implements both `Display` and `Debug`, but with different output.
 assert_eq!(format!("{}", TestValue::TEST), r#"Display("test")"#, "Should be Display");
@@ -101,19 +102,19 @@ let secret = Secret { id: 42, key: "secret", payload: vec![1, 2, 3] };
 assert_eq!(format!("{:?}", secret), "Secret { id: 42, key: .., payload: Vec<u8> }");
 ```
 
-`DebugTupleExt` has a similar API.
+`DebugTupleExt` has a similar API. Similar, but more limited extension exist for `DebugList`, `DebugSet`, and `DebugMap`
 
 ## Option and Result Wrappers
 
-The `option` and `result` modules provide wrappers for `Option` and `Result` types that work without requiring `T: Debug`.
+The `wrap` module also provides wrappers for `Option` and `Result` types that work without requiring `T: Debug`.
 
 ### Type Name Wrappers
 
 Show the type name instead of the actual value:
 
 ```rust
-use display_as_debug::option::TypeNameOption;
-use display_as_debug::result::TypeNameResult;
+use display_as_debug::wrap::TypeNameOption;
+use display_as_debug::wrap::TypeNameResult;
 use display_as_debug::types::{Full, Short};
 
 assert_eq!(
@@ -143,8 +144,8 @@ assert_eq!(
 Hide the value completely while preserving the variant information:
 
 ```rust
-use display_as_debug::option::OpaqueOption;
-use display_as_debug::result::OpaqueResult;
+use display_as_debug::wrap::OpaqueOption;
+use display_as_debug::wrap::OpaqueResult;
 
 let opt = Some("sensitive data");
 assert_eq!(format!("{:?}", OpaqueOption(opt)), "Some(..)");

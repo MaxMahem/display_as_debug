@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`OpaqueSet` struct**: Shows obscured set/map length as `{..: N}`. Also available as `OpaqueMap` alias.
+- **`TypeNameSet` struct**: Shows set/map type and length as `{<Type>: N}`. Also available as `TypeNameMap` alias.
 - **`types` module**: Reorganized into a dedicated `types` module for specialized formatting types:
   - **`Opaque` struct**: Now wraps a value (defaulting to `()`) that formats as `..` in `Debug` contexts. The unit type version can be used as a ZST marker.
   - **`TestValue` struct**: Added for demonstrating display modes in tests and examples.
@@ -42,11 +44,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **BREAKING**: Reorganized module structure:
-  - `debug` module - Contains `DisplayAsDebug` struct
-  - `display` module - Contains `DebugAsDisplay` struct
+  - `wrap` module - Contains all wrapper types:
+    - `DisplayAsDebug`, `DebugAsDisplay` - Debug/Display conversion wrappers
+    - `OpaqueOption`, `TypeNameOption` - Option formatting wrappers (in `wrap::option` submodule)
+    - `OpaqueResult`, `TypeNameResult` - Result formatting wrappers (in `wrap::result` submodule)
   - `types` module - Contains `Opaque`, `TypeName`, `OpaqueList`, `TypeNameList`, `TestValue`
   - `fmt` module - Contains all `DebugXxxExt` extension traits
-  - **Migration**: Update imports to use new module paths.
+  - **Migration**: Update imports to use new module paths:
+  
+    ```rust
+    // Before (0.4.x):
+    use display_as_debug::debug::DisplayAsDebug;
+    use display_as_debug::option::OpaqueOption;
+    
+    // After (0.5.0):
+    use display_as_debug::wrap::DisplayAsDebug;
+    use display_as_debug::wrap::OpaqueOption;
+    ```
+
 - **BREAKING**: Renamed types for clarity:
   - `debug_type` → `debug_type_name`
   - `OpaqueResultDbg` → `OpaqueResult`

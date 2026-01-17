@@ -3,8 +3,8 @@ use core::marker::PhantomData;
 
 use derive_more::{AsMut, AsRef, Deref};
 
-use crate::result::{STR_ERR, STR_OK};
 use crate::types::{DisplayMode, Full, TypeName};
+use crate::wrap::result::{STR_ERR, STR_OK};
 
 /// A [`Result<T, E>`] wrapper that implements [`Debug`], displaying type names instead of values.
 ///
@@ -14,15 +14,12 @@ use crate::types::{DisplayMode, Full, TypeName};
 /// The `M` type parameter controls whether [`Full`](crate::types::Full) or [`Short`](crate::types::Short)
 /// type names are displayed.
 ///
-/// This wrapper owns the `Result<T, E>` directly. For borrowed usage, use `Result::as_ref()`:
-/// - `TypeNameResult::new(Ok(value))` — owned inner value
-/// - `TypeNameResult::new(res.as_ref())` — borrowed inner value
-///
 /// # Examples
 ///
 /// ```rust
-/// # use display_as_debug::result::TypeNameResult;
-/// # use display_as_debug::types::{Full, Short};
+/// use display_as_debug::wrap::TypeNameResult;
+/// use display_as_debug::types::{Full, Short};
+///
 /// let ok = Ok::<i32, &str>(42);
 /// let err = Err::<i32, &str>("error");
 /// assert_eq!(format!("{:?}", TypeNameResult::new::<Full>(ok)), "Ok(i32)");

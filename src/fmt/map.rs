@@ -1,8 +1,8 @@
 use core::fmt::{Debug, DebugMap, Display};
 
 use super::fold_mut::IteratorFoldMut;
-use crate::debug::DisplayAsDebug;
 use crate::types::OPAQUE;
+use crate::wrap::DisplayAsDebug;
 
 /// Extension trait for [`DebugMap`] providing convenient entry formatting methods.
 #[sealed::sealed]

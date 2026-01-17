@@ -3,7 +3,7 @@ use core::fmt::{Debug, Formatter};
 use derive_more::{AsMut, AsRef, Deref, From};
 
 use crate::fmt::DebugTupleExt;
-use crate::option::{STR_NONE, STR_SOME};
+use crate::wrap::option::{STR_NONE, STR_SOME};
 
 /// A [`Option<T>`] wrapper that implements [`Debug`] with opaque Some values.
 ///
@@ -13,7 +13,7 @@ use crate::option::{STR_NONE, STR_SOME};
 /// # Examples
 ///
 /// ```rust
-/// # use display_as_debug::option::OpaqueOption;
+/// # use display_as_debug::wrap::OpaqueOption;
 /// assert_eq!(format!("{:?}", OpaqueOption(Some(42))), "Some(..)");
 /// assert_eq!(format!("{:?}", OpaqueOption(None::<i32>)), "None");
 /// ```

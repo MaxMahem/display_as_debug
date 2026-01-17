@@ -4,8 +4,8 @@ use core::marker::PhantomData;
 use derive_more::{AsMut, AsRef, Deref};
 
 use crate::fmt::DebugTupleExt;
-use crate::option::{STR_NONE, STR_SOME};
 use crate::types::{DisplayMode, Full, TypeName};
+use crate::wrap::option::{STR_NONE, STR_SOME};
 
 /// A [`Option<T>`] wrapper that implements [`Debug`], displaying type names instead of values.
 ///
@@ -15,14 +15,10 @@ use crate::types::{DisplayMode, Full, TypeName};
 /// The `M` type parameter controls whether [`Full`](crate::types::Full) or [`Short`](crate::types::Short)
 /// type names are displayed.
 ///
-/// This wrapper owns the `Option<T>` directly. For borrowed usage, use `Option::as_ref()`:
-/// - `TypeNameOption::new(Some(value))` — owned inner value
-/// - `TypeNameOption::new(opt.as_ref())` — borrowed inner value
-///
 /// # Examples
 ///
 /// ```rust
-/// use display_as_debug::option::TypeNameOption;
+/// use display_as_debug::wrap::TypeNameOption;
 /// use display_as_debug::types::{Full, Short};
 ///
 /// assert_eq!(format!("{:?}", TypeNameOption::new::<Short>(Some(vec![1]))), "Some(Vec<i32>)");

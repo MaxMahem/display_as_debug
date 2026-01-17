@@ -25,7 +25,7 @@ macro_rules! test_source {
 
 mod debug_as_display_test {
     use super::*;
-    use display_as_debug::display::DebugAsDisplay;
+    use display_as_debug::wrap::DebugAsDisplay;
 
     const EXPECTED_DEBUG: &str = r#"Debug("test")"#;
 
@@ -36,7 +36,7 @@ mod debug_as_display_test {
 
 mod display_as_debug_test {
     use super::*;
-    use display_as_debug::debug::DisplayAsDebug;
+    use display_as_debug::wrap::DisplayAsDebug;
 
     const EXPECTED_DISPLAY: &str = r#"Display("test")"#;
 
@@ -47,7 +47,7 @@ mod display_as_debug_test {
 
 mod opaque_result {
     use super::*;
-    use display_as_debug::result::OpaqueResult;
+    use display_as_debug::wrap::OpaqueResult;
 
     const EXPECTED_OK: &str = "Ok(..)";
     const EXPECTED_ERR: &str = r#"Err("error message")"#;
@@ -58,7 +58,7 @@ mod opaque_result {
 
 mod type_result {
     use super::*;
-    use display_as_debug::result::TypeNameResult;
+    use display_as_debug::wrap::TypeNameResult;
 
     const EXPECTED_OK_FULL: &str = "Ok(alloc::vec::Vec<i32>)";
     const EXPECTED_OK_SHORT: &str = "Ok(Vec<i32>)";
@@ -73,7 +73,7 @@ mod type_result {
 
 mod opaque_option {
     use super::*;
-    use display_as_debug::option::OpaqueOption;
+    use display_as_debug::wrap::OpaqueOption;
 
     const EXPECTED_SOME: &str = "Some(..)";
     const EXPECTED_NONE: &str = "None";
@@ -84,7 +84,7 @@ mod opaque_option {
 
 mod type_option {
     use super::*;
-    use display_as_debug::option::TypeNameOption;
+    use display_as_debug::wrap::TypeNameOption;
 
     const EXPECTED_SOME_FULL: &str = "Some(alloc::vec::Vec<i32>)";
     const EXPECTED_SOME_SHORT: &str = "Some(Vec<i32>)";

@@ -9,7 +9,7 @@ use derive_more::{AsMut, AsRef, Deref, From};
 /// # Examples
 ///
 /// ```rust
-/// # use display_as_debug::display::DebugAsDisplay;
+/// # use display_as_debug::wrap::DebugAsDisplay;
 /// assert_eq!(format!("{}", DebugAsDisplay(&vec![1])), "[1]", "debug used for display");
 /// assert_eq!(format!("{:?}", DebugAsDisplay(&vec![1])), "[1]", "debug unchanged");
 /// ```

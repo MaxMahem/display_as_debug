@@ -5,7 +5,7 @@
 //! By using `err_debug_to_display()`, we can ensure the nice `Debug` formatting is used for
 //! display instead of the default `Debug` representation.
 
-use display_as_debug::debug::DisplayAsDebug;
+use display_as_debug::wrap::DisplayAsDebug;
 use std::fmt;
 
 /// A custom error type with a nice Display implementation

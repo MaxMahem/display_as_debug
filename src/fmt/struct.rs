@@ -1,7 +1,7 @@
 use core::fmt::{Debug, DebugStruct, Display};
 
-use crate::debug::DisplayAsDebug;
 use crate::types::{DisplayMode, OPAQUE, TypeName};
+use crate::wrap::DisplayAsDebug;
 
 /// Extension trait for [`DebugStruct`] providing convenient field formatting methods.
 #[sealed::sealed]
