@@ -1,97 +1,113 @@
 use core::fmt::{Debug, Display, Formatter};
 use core::marker::PhantomData;
 
-/// Sealed marker trait for type name display modes.
-#[sealed::sealed]
-pub trait DisplayMode {}
+use derive_more::{AsMut, AsRef, Deref};
 
-/// [`DisplayMode`] that shows the full type name from [`std::any::type_name`](core::any::type_name).
-#[derive(Copy, Clone, Debug)]
-pub struct Full;
+use crate::types::type_name::display_mode::{DisplayMode, Full, Short};
 
-#[sealed::sealed]
-impl DisplayMode for Full {}
-
-/// [`DisplayMode`] that shows only the short type name (last component after `::` splitting).
-#[derive(Copy, Clone, Debug)]
-pub struct Short;
-
-#[sealed::sealed]
-impl DisplayMode for Short {}
-
-/// A marker type that formats as a type name when used in [`Debug`] or [`Display`] contexts.
+/// A type that formats as a type name when used in [`Debug`] or [`Display`] contexts.
 ///
-/// This type should not be used directly, but rather through the associated constants:
-/// - [`TypeName::FULL`] for the fully name as returned by [`std::any::type_name`](core::any::type_name)
-/// - [`TypeName::SHORT`] for the shortened name (last component only)
+/// Can be used as:
+/// - **Marker type**: `TypeName::<MyType>::FULL` - zero-sized, just prints the type name
+/// - **Value wrapper**: `TypeName::of(value)` - wraps a value, prints its type name
 ///
-/// Note: rust does not gurantee the stability or format of any of these values, they should only
-/// be used for debugging purposes.
+/// # Type Parameters
+///
+/// - `T`: The type to display.
+/// - `V`: The value to wrap. Defaults to `PhantomData<T>` for marker types.
+/// - `M`: The display mode. Defaults to [`Short`](crate::types::Short).
 ///
 /// # Examples
 ///
-/// ```
-/// # use display_as_debug::types::TypeName;
+/// ```rust
+/// use display_as_debug::types::{TypeName, Full, Short};
+///
+/// // Marker usage (no wrapped value)
 /// assert_eq!(format!("{:?}", TypeName::<Vec<i32>>::FULL), "alloc::vec::Vec<i32>");
-/// assert_eq!(format!("{}", TypeName::<Vec<i32>>::FULL), "alloc::vec::Vec<i32>");
 /// assert_eq!(format!("{:?}", TypeName::<Vec<i32>>::SHORT), "Vec<i32>");
-/// assert_eq!(format!("{}", TypeName::<Vec<i32>>::SHORT), "Vec<i32>");
+///
+/// // Value wrapper usage
+/// let wrapped = TypeName::wrap::<Full>(vec![1, 2, 3]);
+/// assert_eq!(format!("{:?}", wrapped), "alloc::vec::Vec<i32>");
+/// assert_eq!(*wrapped, vec![1, 2, 3]); // Can still access the value
 /// ```
-#[derive(Copy, Clone)]
-pub struct TypeName<T: ?Sized, M: DisplayMode = Full>(PhantomData<fn() -> T>, PhantomData<M>);
+#[derive(Copy, Clone, Deref, AsMut, AsRef)]
+pub struct TypeName<T: ?Sized, V = PhantomData<T>, M: DisplayMode = Short>(
+    #[deref]
+    #[as_mut]
+    #[as_ref]
+    pub V,
+    PhantomData<(fn() -> T, M)>,
+);
 
-impl<T: ?Sized, M: DisplayMode> TypeName<T, M> {
-    /// A constant instance showing the full type name from [`std::any::type_name`](core::any::type_name).
+impl<T: ?Sized, M: DisplayMode> TypeName<T, PhantomData<T>, M> {
+    /// A constant instance showing the full type name.
+    pub const FULL: TypeName<T, PhantomData<T>, Full> = TypeName(PhantomData, PhantomData);
+
+    /// A constant instance showing the short type name.
+    pub const SHORT: TypeName<T, PhantomData<T>, Short> = TypeName(PhantomData, PhantomData);
+}
+
+impl TypeName<(), PhantomData<()>, Full> {
+    /// Creates an empty marker [`TypeName`] for the given type and [`DisplayMode`].
+    ///
+    /// Prefer to use the [`TypeName::FULL`] and [`TypeName::SHORT`] constants, unless the code has
+    /// to be generic over [`DisplayMode`].
     ///
     /// # Examples
     ///
+    /// ```rust
+    /// use display_as_debug::types::{TypeName, Full, Short};
+    ///
+    /// let full = TypeName::empty::<Vec<i32>, Full>();
+    /// assert_eq!(format!("{full:?}"), "alloc::vec::Vec<i32>");
+    ///
+    /// let short = TypeName::empty::<Vec<i32>, Short>();
+    /// assert_eq!(format!("{short:?}"), "Vec<i32>");
     /// ```
-    /// # use display_as_debug::types::TypeName;
-    /// assert_eq!(format!("{:?}", TypeName::<Vec<i32>>::FULL), "alloc::vec::Vec<i32>");
-    /// assert_eq!(format!("{}", TypeName::<Vec<i32>>::FULL), "alloc::vec::Vec<i32>");
-    /// ```
-    pub const FULL: TypeName<T, Full> = TypeName(PhantomData, PhantomData);
+    #[must_use]
+    pub fn empty<T: ?Sized, M: DisplayMode>() -> TypeName<T, PhantomData<T>, M> {
+        TypeName(PhantomData, PhantomData)
+    }
+}
 
-    /// A constant instance showing only the short type name.
+impl<T> TypeName<T, T, Full> {
+    /// Wrap a value, displaying its type name in debug output.
+    ///
+    /// The type is inferred from the value.
     ///
     /// # Examples
     ///
+    /// ```ignore
+    /// let wrapped = TypeName::wrap(42i32);
+    /// assert_eq!(format!("{:?}", wrapped), "i32");
+    /// assert_eq!(*wrapped, 42);
     /// ```
-    /// # use display_as_debug::types::TypeName;
-    /// assert_eq!(format!("{:?}", TypeName::<Vec<i32>>::SHORT), "Vec<i32>");
-    /// assert_eq!(format!("{}", TypeName::<Vec<i32>>::SHORT), "Vec<i32>");
-    /// ```
-    pub const SHORT: TypeName<T, Short> = TypeName(PhantomData, PhantomData);
-}
-
-impl<T: ?Sized, M: DisplayMode> Default for TypeName<T, M> {
-    fn default() -> Self {
-        Self(PhantomData, PhantomData)
+    pub fn wrap<M: DisplayMode>(value: T) -> TypeName<T, T, M> {
+        TypeName(value, PhantomData)
     }
 }
 
-impl<T: ?Sized> Debug for TypeName<T, Full> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
-        f.write_str(core::any::type_name::<T>())
+// impl<T: Default, M: DisplayMode> Default for TypeName<T, T, M> {
+//     fn default() -> Self {
+//         Self(T::default(), PhantomData)
+//     }
+// }
+
+impl<T> From<T> for TypeName<T, T, Full> {
+    fn from(value: T) -> Self {
+        Self::wrap(value)
     }
 }
 
-impl<T: ?Sized> Display for TypeName<T, Full> {
+impl<T: ?Sized, V, M: DisplayMode> Debug for TypeName<T, V, M> {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
-        Debug::fmt(self, f)
+        f.write_str(M::type_name::<T>())
     }
 }
 
-impl<T: ?Sized> Debug for TypeName<T, Short> {
+impl<T: ?Sized, V, M: DisplayMode> Display for TypeName<T, V, M> {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
-        let type_name = core::any::type_name::<T>();
-        let short_name = type_name.rsplit("::").next().unwrap_or(type_name);
-        f.write_str(short_name)
-    }
-}
-
-impl<T: ?Sized> Display for TypeName<T, Short> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
-        Debug::fmt(self, f)
+        f.write_str(M::type_name::<T>())
     }
 }

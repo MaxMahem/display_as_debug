@@ -48,7 +48,7 @@ where
 {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         match &self.0 {
-            Ok(_) => f.debug_tuple(STR_OK).field(&TypeName::<T, M>::default()).finish(),
+            Ok(_) => f.debug_tuple(STR_OK).field(&TypeName::empty::<T, M>()).finish(),
             Err(e) => f.debug_tuple(STR_ERR).field(e).finish(),
         }
     }

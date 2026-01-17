@@ -1,7 +1,7 @@
 use core::fmt::{Debug, Display, Formatter, Result};
 use core::marker::PhantomData;
 
-use super::{DisplayMode, TypeName};
+use crate::types::{DisplayMode, TypeName};
 
 /// A type that formats as `{<Type>: N}` when used with [`Debug`].
 ///
@@ -73,19 +73,13 @@ impl<T, M> TypeNameSet<T, M> {
     }
 }
 
-impl<T, M: DisplayMode> Debug for TypeNameSet<T, M>
-where
-    TypeName<T, M>: Debug + Display,
-{
+impl<T, M: DisplayMode> Debug for TypeNameSet<T, M> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "{{<{}>: {}}}", TypeName::<T, M>::default(), self.0)
+        write!(f, "{{<{}>: {}}}", TypeName::empty::<T, M>(), self.0)
     }
 }
 
-impl<T, M: DisplayMode> Display for TypeNameSet<T, M>
-where
-    TypeName<T, M>: Debug + Display,
-{
+impl<T, M: DisplayMode> Display for TypeNameSet<T, M> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         Debug::fmt(self, f)
     }

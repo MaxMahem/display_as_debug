@@ -88,7 +88,7 @@ impl DebugTupleExt for DebugTuple<'_, '_> {
     where
         TypeName<T, M>: Debug,
     {
-        self.field(&TypeName::<T, M>::default())
+        self.field(&TypeName::empty::<T, M>())
     }
 
     fn field_opaque(&mut self) -> &mut Self {

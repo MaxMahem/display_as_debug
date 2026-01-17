@@ -14,11 +14,18 @@ mod type_name {
         test_fmt!(debug, TypeName::<Vec<i32>>::FULL, "{:?}", EXPECTED);
         test_fmt!(display, TypeName::<Vec<i32>>::FULL, "{}", EXPECTED);
 
-        mod default {
+        mod empty {
             use super::*;
 
-            test_fmt!(debug, TypeName::<Vec<i32>, Full>::default(), "{:?}", EXPECTED);
-            test_fmt!(display, TypeName::<Vec<i32>, Full>::default(), "{}", EXPECTED);
+            test_fmt!(debug, TypeName::empty::<Vec<i32>, Full>(), "{:?}", EXPECTED);
+            test_fmt!(display, TypeName::empty::<Vec<i32>, Full>(), "{}", EXPECTED);
+        }
+
+        mod of {
+            use super::*;
+
+            test_fmt!(debug, TypeName::wrap::<Full>(vec![1]), "{:?}", EXPECTED);
+            test_fmt!(display, TypeName::wrap::<Full>(vec![1]), "{}", EXPECTED);
         }
     }
 
@@ -30,11 +37,11 @@ mod type_name {
         test_fmt!(debug, TypeName::<Vec<i32>>::SHORT, "{:?}", EXPECTED);
         test_fmt!(display, TypeName::<Vec<i32>>::SHORT, "{}", EXPECTED);
 
-        mod default {
+        mod empty {
             use super::*;
 
-            test_fmt!(debug, TypeName::<Vec<i32>, Short>::default(), "{:?}", EXPECTED);
-            test_fmt!(display, TypeName::<Vec<i32>, Short>::default(), "{}", EXPECTED);
+            test_fmt!(debug, TypeName::empty::<Vec<i32>, Short>(), "{:?}", EXPECTED);
+            test_fmt!(display, TypeName::empty::<Vec<i32>, Short>(), "{}", EXPECTED);
         }
     }
 }

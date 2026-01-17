@@ -90,7 +90,7 @@ impl DebugStructExt for DebugStruct<'_, '_> {
     where
         TypeName<T, M>: Debug,
     {
-        self.field(name, &TypeName::<T, M>::default())
+        self.field(name, &TypeName::empty::<T, M>())
     }
 
     fn field_opaque(&mut self, name: &str) -> &mut Self {
