@@ -11,7 +11,8 @@ use derive_more::{AsMut, AsRef, Deref, From};
 /// # Examples
 ///
 /// ```rust
-/// # use display_as_debug::types::{OPAQUE, Opaque};
+/// # use display_as_debug::wrap::Opaque;
+/// # use display_as_debug::types::OPAQUE;
 /// assert_eq!(format!("{:?}", OPAQUE), "..", "Debug format should be opaque");
 /// assert_eq!(format!("{}", OPAQUE), "..", "Display format should be opaque");
 ///
@@ -21,24 +22,13 @@ use derive_more::{AsMut, AsRef, Deref, From};
 #[derive(Copy, Clone, Deref, From, AsMut, AsRef, Default)]
 pub struct Opaque<T = ()>(pub T);
 
-/// An obscure marker value that formats as `..` when used in [`Debug`] or [`Display`].
-///
-/// # Examples
-///
-/// ```rust
-/// # use display_as_debug::types::{OPAQUE, Opaque};
-/// assert_eq!(format!("{:?}", OPAQUE), "..", "Debug format should be opaque");
-/// assert_eq!(format!("{}", OPAQUE), "..", "Display format should be opaque");
-/// ```
-pub const OPAQUE: Opaque<()> = Opaque::DEFAULT;
-
 impl Opaque<()> {
     /// The default value for [`Opaque`]
     pub const DEFAULT: Self = Self(());
 }
 
 impl<T> Opaque<T> {
-    /// The string representation of [`Opaque::DEFAULT`]/[`OPAQUE`]
+    /// The string representation of [`Opaque::DEFAULT`]/[`OPAQUE`](crate::types::OPAQUE)
     pub const OPAQUE_STR: &str = "..";
 }
 

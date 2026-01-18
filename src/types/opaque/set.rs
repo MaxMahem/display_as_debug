@@ -1,6 +1,6 @@
 use core::fmt::{Debug, Display, Formatter, Result};
 
-use super::OPAQUE;
+use crate::types::OPAQUE;
 
 /// A type that formats as `{..: N}` when used with [`Debug`].
 ///

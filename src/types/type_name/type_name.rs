@@ -31,8 +31,9 @@ use crate::types::type_name::display_mode::{DisplayMode, Full, Short};
 /// assert_eq!(format!("{:?}", wrapped), "alloc::vec::Vec<i32>");
 /// assert_eq!(*wrapped, vec![1, 2, 3]); // Can still access the value
 /// ```
-#[derive(Copy, Clone, Deref, AsMut, AsRef)]
-pub struct TypeName<T: ?Sized, V = PhantomData<T>, M: DisplayMode = Short>(
+#[derive(Copy, Clone, Deref, AsMut, AsRef, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct TypeName<T: ?Sized = (), V = PhantomData<T>, M: DisplayMode = Short>(
+    /// The wrapped value, if any. For marker types, this is `PhantomData<T>`.
     #[deref]
     #[as_mut]
     #[as_ref]
@@ -48,7 +49,7 @@ impl<T: ?Sized, M: DisplayMode> TypeName<T, PhantomData<T>, M> {
     pub const SHORT: TypeName<T, PhantomData<T>, Short> = TypeName(PhantomData, PhantomData);
 }
 
-impl TypeName<(), PhantomData<()>, Full> {
+impl TypeName {
     /// Creates an empty marker [`TypeName`] for the given type and [`DisplayMode`].
     ///
     /// Prefer to use the [`TypeName::FULL`] and [`TypeName::SHORT`] constants, unless the code has
@@ -78,21 +79,36 @@ impl<T> TypeName<T, T, Full> {
     ///
     /// # Examples
     ///
-    /// ```ignore
-    /// let wrapped = TypeName::wrap(42i32);
+    /// ```rust
+    /// use display_as_debug::types::{TypeName, Full, Short};
+    ///
+    /// let wrapped = TypeName::wrap::<Short>(42i32);
     /// assert_eq!(format!("{:?}", wrapped), "i32");
-    /// assert_eq!(*wrapped, 42);
+    /// assert_eq!(*wrapped, 42, "Wrapped value is accessible");
+    ///
+    /// let wrapped = TypeName::wrap::<Full>(vec![1]);
+    /// assert_eq!(format!("{:?}", wrapped), "alloc::vec::Vec<i32>");
     /// ```
     pub fn wrap<M: DisplayMode>(value: T) -> TypeName<T, T, M> {
         TypeName(value, PhantomData)
     }
 }
 
-// impl<T: Default, M: DisplayMode> Default for TypeName<T, T, M> {
-//     fn default() -> Self {
-//         Self(T::default(), PhantomData)
-//     }
-// }
+impl<T, V, M: DisplayMode> TypeName<T, V, M> {
+    /// Consumes the wrapper, returning the inner value.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use display_as_debug::types::{TypeName, Full, Short};
+    ///
+    /// let wrapped = TypeName::wrap::<Short>(42i32);
+    /// assert_eq!(wrapped.into_inner(), 42);
+    /// ```
+    pub fn into_inner(self) -> V {
+        self.0
+    }
+}
 
 impl<T> From<T> for TypeName<T, T, Full> {
     fn from(value: T) -> Self {
