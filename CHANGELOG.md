@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.0] - 01/16/2026
+## [0.5.0] - 01/19/2026
 
 ### Added
 
@@ -46,9 +46,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING**: Reorganized module structure:
   - `wrap` module - Contains all wrapper types:
     - `DisplayAsDebug`, `DebugAsDisplay` - Debug/Display conversion wrappers
+    - `TypeName` struct and wrapper impl (`wrap()`, `into_inner()`, `From`) - also re-exported from `types`
     - `OpaqueOption`, `TypeNameOption` - Option formatting wrappers (in `wrap::option` submodule)
     - `OpaqueResult`, `TypeNameResult` - Result formatting wrappers (in `wrap::result` submodule)
-  - `types` module - Contains `Opaque`, `TypeName`, `OpaqueList`, `TypeNameList`, `TestValue`
+  - `types` module - Contains `Opaque`, `TypeName` const marker impl (`FULL`, `SHORT`, `empty()`), `OpaqueList`, `TypeNameList`, `TestValue`
   - `fmt` module - Contains all `DebugXxxExt` extension traits
   - **Migration**: Update imports to use new module paths:
   

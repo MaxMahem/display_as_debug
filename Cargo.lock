@@ -25,7 +25,7 @@ dependencies = [
 
 [[package]]
 name = "display_as_debug"
-version = "0.4.0"
+version = "0.5.0"
 dependencies = [
  "derive_more",
  "sealed",
