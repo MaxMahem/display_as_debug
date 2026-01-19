@@ -7,25 +7,11 @@
 #[cfg(doc)]
 use core::fmt::{Debug, Display};
 
-mod debug_struct_ext;
-mod debug_tuple_ext;
-mod opaque;
+/// Extension traits for [`Debug`] builder types.
+pub mod fmt;
 
-/// Traits and types for treating a [`Display`] implementation as a [`Debug`] implementation.
-pub mod as_debug;
+/// Helper types that implement [`Debug`] and/or [`Display`] for specialized formatting.
+pub mod types;
 
-/// Traits and types for treating a [`Debug`] implementation as a [`Display`] implementation.
-pub mod as_display;
-
-/// Traits and types for treating implementing [`Debug`] for [`Option`].
-pub mod option;
-
-/// Traits and types for treating implementing [`Debug`] for [`Result`].
-pub mod result;
-
-/// Traits and types for displaying type names.
-pub mod type_name;
-
-pub use debug_struct_ext::DebugStructExt;
-pub use debug_tuple_ext::DebugTupleExt;
-pub use opaque::Opaque;
+/// Wrapper types for [`Debug`] and [`Display`] format conversions.
+pub mod wrap;

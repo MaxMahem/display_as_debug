@@ -9,6 +9,88 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 01/19/2026
+
+### Added
+
+- **`OpaqueSet` struct**: Shows obscured set/map length as `{..: N}`. Also available as `OpaqueMap` alias.
+- **`TypeNameSet` struct**: Shows set/map type and length as `{<Type>: N}`. Also available as `TypeNameMap` alias.
+- **`types` module**: Reorganized into a dedicated `types` module for specialized formatting types:
+  - **`Opaque` struct**: Now wraps a value (defaulting to `()`) that formats as `..` in `Debug` contexts. The unit type version can be used as a ZST marker.
+  - **`TestValue` struct**: Added for demonstrating display modes in tests and examples.
+  - **`OpaqueList` struct**: Shows obscured list length as `[..: N]`.
+  - **`TypeNameList` struct**: Shows list type and length as `[<Type>: N]`.
+- **`fmt` module**: Reorganized formatting extension traits into a dedicated `fmt` module:
+  - **`DebugListExt` trait**: Extension trait for `std::fmt::DebugList`:
+    - `entry_display()` - Uses the `Display` implementation for an entry
+    - `entries_display()` - Uses the `Display` implementation for an iterator of entries
+  - **`DebugMapExt` trait**: Extension trait for `std::fmt::DebugMap`:
+    - `entry_display()` - Uses the `Display` implementation for a value
+    - `entries_display()` - Uses the `Display` implementation for iterator values
+    - `entry_opaque()` - Uses an `Opaque` wrapper for the value
+    - `entries_opaque()` - Uses `Opaque` wrappers for iterator values
+  - **`DebugSetExt` trait**: Extension trait for `std::fmt::DebugSet`:
+    - `entry_display()` - Uses the `Display` implementation for an entry
+    - `entries_display()` - Uses the `Display` implementation for iterator entries
+- **`From<T>` implementations**: Added `From<T>` for all wrapper types enabling `.into()` conversions.
+- **`Deref`/`AsRef`/`AsMut` implementations**: Added for all wrapper types for transparent access to wrapped values.
+- **Standard trait implementations**: All wrapper types now implement `Copy`, `Clone`, `PartialEq`, `Eq`, `PartialOrd`, `Ord`, and `Hash` where applicable.
+
+### Removed
+
+- **BREAKING**: Removed all wrapper extension traits
+  - **Migration**: Use `From`/`Into` instead.
+
+### Changed
+
+- **BREAKING**: Reorganized module structure:
+  - `wrap` module - Contains all wrapper types:
+    - `DisplayAsDebug`, `DebugAsDisplay` - Debug/Display conversion wrappers
+    - `TypeName` struct and wrapper impl (`wrap()`, `into_inner()`, `From`) - also re-exported from `types`
+    - `OpaqueOption`, `TypeNameOption` - Option formatting wrappers (in `wrap::option` submodule)
+    - `OpaqueResult`, `TypeNameResult` - Result formatting wrappers (in `wrap::result` submodule)
+  - `types` module - Contains `Opaque`, `TypeName` const marker impl (`FULL`, `SHORT`, `empty()`), `OpaqueList`, `TypeNameList`, `TestValue`
+  - `fmt` module - Contains all `DebugXxxExt` extension traits
+  - **Migration**: Update imports to use new module paths:
+  
+    ```rust
+    // Before (0.4.x):
+    use display_as_debug::debug::DisplayAsDebug;
+    use display_as_debug::option::OpaqueOption;
+    
+    // After (0.5.0):
+    use display_as_debug::wrap::DisplayAsDebug;
+    use display_as_debug::wrap::OpaqueOption;
+    ```
+
+- **BREAKING**: Renamed types for clarity:
+  - `debug_type` → `debug_type_name`
+  - `OpaqueResultDbg` → `OpaqueResult`
+  - `OpaqueOptionDbg` → `OpaqueOption`
+  - `OptionTypeDebug` → `TypeNameOption`
+  - `ResultTypeDebug` → `TypeNameResult`
+  - `OptionDebugExt` → `DebugOption`
+  - `ResultDebugExt` → `DebugResult`
+- **BREAKING**: Option/Result wrappers now own their values directly instead of borrowing:
+  - `OpaqueOption<T>` replaces `OpaqueOption<'a, T>` — now owns `Option<T>`
+  - `OpaqueResult<T, E>` replaces `OpaqueResult<'a, T, E>` — now owns `Result<T, E>`
+  - `TypeNameOption<T, M>` replaces `TypeNameOption<'a, T, M>` — now owns `Option<T>`
+  - `TypeNameResult<T, E, M>` replaces `TypeNameResult<'a, T, E, M>` — now owns `Result<T, E>`
+  - **Migration**: Use `opt.as_ref()` or `res.as_ref()` to convert borrowed values:
+
+    ```rust
+    // Before:
+    OpaqueOption(&some_option)
+    TypeNameResult::new::<Full>(&some_result)
+    
+    // After:
+    OpaqueOption(some_option.as_ref())  // for borrowed
+    OpaqueOption(some_option)           // for owned
+    TypeNameResult::<_, _, Full>::new(some_result)
+    ```
+
+- **BREAKING**: `TypeName`, `TypeNameList`, and `TypeNameSet` no longer implement `Display`. Use `{:?}` (Debug format) instead of `{}` (Display format).
+
 ## [0.4.0] - 01/14/2026
 
 ### Added

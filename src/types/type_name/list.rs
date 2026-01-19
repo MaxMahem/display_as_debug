@@ -1,0 +1,71 @@
+//! Implementation of [`TypeNameList`]
+
+use core::fmt::{Debug, Formatter, Result};
+use core::marker::PhantomData;
+
+use crate::types::{DisplayMode, TypeName};
+
+/// A type that formats as `[<Type>: N]` when used with [`Debug`].
+///
+/// The type holds no data, and is only used for formatting. It can be used to summarize large
+/// collections or hide sensitive details, by only showing their element type and length.
+///
+/// # Examples
+///
+/// ```rust
+/// use display_as_debug::types::{TypeNameList, Short, Full};
+///
+/// let short = TypeNameList::<u8, Short>::new(100);
+/// assert_eq!(format!("{:?}", short), "[<u8>: 100]");
+///
+/// let full = TypeNameList::<Vec<u8>, Full>::new(100);
+/// assert_eq!(format!("{:?}", full), "[<alloc::vec::Vec<u8>>: 100]");
+/// ```
+pub struct TypeNameList<T, M>(usize, PhantomData<(T, M)>);
+
+impl<T, M> TypeNameList<T, M> {
+    /// Creates a new [`TypeNameList`] with the given `count`.
+    #[must_use]
+    pub const fn new(count: usize) -> Self {
+        Self(count, PhantomData)
+    }
+
+    /// Creates a new [`TypeNameList`] from an iterator with an exact size.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use display_as_debug::types::{TypeNameList, Short};
+    /// let items = vec![1u8, 2, 3, 4, 5];
+    /// assert_eq!(
+    ///     format!("{:?}", TypeNameList::<u8, Short>::of(&items)),
+    ///     "[<u8>: 5]"
+    /// );
+    /// ```
+    #[must_use]
+    pub fn of<I: IntoIterator<IntoIter: ExactSizeIterator>>(iter: I) -> Self {
+        Self(iter.into_iter().len(), PhantomData)
+    }
+
+    /// Returns the descriptive length of the list.
+    #[must_use]
+    #[allow(clippy::len_without_is_empty, reason = "This type holds no values")]
+    pub const fn len(&self) -> usize {
+        self.0
+    }
+}
+
+impl<T, M: DisplayMode> Debug for TypeNameList<T, M> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(f, "[<{:?}>: {}]", TypeName::empty::<T, M>(), self.0)
+    }
+}
+
+impl<I, T, M: DisplayMode> From<I> for TypeNameList<T, M>
+where
+    I: IntoIterator<IntoIter: ExactSizeIterator>,
+{
+    fn from(iter: I) -> Self {
+        Self(iter.into_iter().len(), PhantomData)
+    }
+}
