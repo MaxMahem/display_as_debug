@@ -1,12 +1,14 @@
-use core::fmt::{Debug, Display, Formatter, Result};
+//! Implementation of [`TypeNameList`]
+
+use core::fmt::{Debug, Formatter, Result};
 use core::marker::PhantomData;
 
 use crate::types::{DisplayMode, TypeName};
 
 /// A type that formats as `[<Type>: N]` when used with [`Debug`].
 ///
-/// Useful for summarizing large collections or hiding sensitive details, by only showing their
-/// element type and length.
+/// The type holds no data, and is only used for formatting. It can be used to summarize large
+/// collections or hide sensitive details, by only showing their element type and length.
 ///
 /// # Examples
 ///
@@ -15,11 +17,9 @@ use crate::types::{DisplayMode, TypeName};
 ///
 /// let short = TypeNameList::<u8, Short>::new(100);
 /// assert_eq!(format!("{:?}", short), "[<u8>: 100]");
-/// assert_eq!(format!("{}", short), "[<u8>: 100]");
 ///
 /// let full = TypeNameList::<Vec<u8>, Full>::new(100);
 /// assert_eq!(format!("{:?}", full), "[<alloc::vec::Vec<u8>>: 100]");
-/// assert_eq!(format!("{}", full), "[<alloc::vec::Vec<u8>>: 100]");
 /// ```
 pub struct TypeNameList<T, M>(usize, PhantomData<(T, M)>);
 
@@ -57,13 +57,7 @@ impl<T, M> TypeNameList<T, M> {
 
 impl<T, M: DisplayMode> Debug for TypeNameList<T, M> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "[<{}>: {}]", TypeName::empty::<T, M>(), self.0)
-    }
-}
-
-impl<T, M: DisplayMode> Display for TypeNameList<T, M> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        Debug::fmt(self, f)
+        write!(f, "[<{:?}>: {}]", TypeName::empty::<T, M>(), self.0)
     }
 }
 

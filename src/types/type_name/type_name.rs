@@ -1,11 +1,11 @@
-use core::fmt::{Debug, Display, Formatter};
+use core::fmt::{Debug, Formatter};
 use core::marker::PhantomData;
 
 use derive_more::{AsMut, AsRef, Deref};
 
 use crate::types::type_name::display_mode::{DisplayMode, Full, Short};
 
-/// A type that formats as a type name when used in [`Debug`] or [`Display`] contexts.
+/// A type that formats as a type name when used in [`Debug`] contexts.
 ///
 /// Can be used as:
 /// - **Marker type**: `TypeName::<MyType>::FULL` - zero-sized, just prints the type name
@@ -14,7 +14,7 @@ use crate::types::type_name::display_mode::{DisplayMode, Full, Short};
 /// # Type Parameters
 ///
 /// - `T`: The type to display.
-/// - `V`: The value to wrap. Defaults to `PhantomData<T>` for marker types.
+/// - `V`: The value to wrap. Defaults to [`PhantomData<fn() -> T>`] for marker types.
 /// - `M`: The display mode. Defaults to [`Short`](crate::types::Short).
 ///
 /// # Examples
@@ -32,7 +32,7 @@ use crate::types::type_name::display_mode::{DisplayMode, Full, Short};
 /// assert_eq!(*wrapped, vec![1, 2, 3]); // Can still access the value
 /// ```
 #[derive(Copy, Clone, Deref, AsMut, AsRef, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct TypeName<T: ?Sized = (), V = PhantomData<T>, M: DisplayMode = Short>(
+pub struct TypeName<T: ?Sized = (), V = PhantomData<fn() -> T>, M: DisplayMode = Short>(
     /// The wrapped value, if any. For marker types, this is `PhantomData<T>`.
     #[deref]
     #[as_mut]
@@ -41,12 +41,15 @@ pub struct TypeName<T: ?Sized = (), V = PhantomData<T>, M: DisplayMode = Short>(
     PhantomData<(fn() -> T, M)>,
 );
 
-impl<T: ?Sized, M: DisplayMode> TypeName<T, PhantomData<T>, M> {
+/// An alias for a [`TypeName`] that wraps no value and serves only as a marker.
+pub type TypeNameMarker<T, M> = TypeName<T, PhantomData<fn() -> T>, M>;
+
+impl<T: ?Sized, M: DisplayMode> TypeNameMarker<T, M> {
     /// A constant instance showing the full type name.
-    pub const FULL: TypeName<T, PhantomData<T>, Full> = TypeName(PhantomData, PhantomData);
+    pub const FULL: TypeNameMarker<T, Full> = TypeName(PhantomData, PhantomData);
 
     /// A constant instance showing the short type name.
-    pub const SHORT: TypeName<T, PhantomData<T>, Short> = TypeName(PhantomData, PhantomData);
+    pub const SHORT: TypeNameMarker<T, Short> = TypeName(PhantomData, PhantomData);
 }
 
 impl TypeName {
@@ -67,11 +70,12 @@ impl TypeName {
     /// assert_eq!(format!("{short:?}"), "Vec<i32>");
     /// ```
     #[must_use]
-    pub fn empty<T: ?Sized, M: DisplayMode>() -> TypeName<T, PhantomData<T>, M> {
+    pub fn empty<T: ?Sized, M: DisplayMode>() -> TypeNameMarker<T, M> {
         TypeName(PhantomData, PhantomData)
     }
 }
 
+#[allow(clippy::mismatching_type_param_order, reason = "T is used for both Value and Type")]
 impl<T> TypeName<T, T, Full> {
     /// Wrap a value, displaying its type name in debug output.
     ///
@@ -110,19 +114,14 @@ impl<T, V, M: DisplayMode> TypeName<T, V, M> {
     }
 }
 
-impl<T> From<T> for TypeName<T, T, Full> {
+#[allow(clippy::mismatching_type_param_order, reason = "T is used for both Value and Type")]
+impl<T, M: DisplayMode> From<T> for TypeName<T, T, M> {
     fn from(value: T) -> Self {
-        Self::wrap(value)
+        Self(value, PhantomData)
     }
 }
 
 impl<T: ?Sized, V, M: DisplayMode> Debug for TypeName<T, V, M> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
-        f.write_str(M::type_name::<T>())
-    }
-}
-
-impl<T: ?Sized, V, M: DisplayMode> Display for TypeName<T, V, M> {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         f.write_str(M::type_name::<T>())
     }

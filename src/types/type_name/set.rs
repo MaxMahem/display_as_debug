@@ -1,12 +1,16 @@
-use core::fmt::{Debug, Display, Formatter, Result};
+//! Implementation of [`TypeNameSet`]
+
+use core::fmt::{Debug, Formatter, Result};
 use core::marker::PhantomData;
 
 use crate::types::{DisplayMode, TypeName};
 
 /// A type that formats as `{<Type>: N}` when used with [`Debug`].
 ///
-/// Useful for summarizing large sets or maps, or hiding sensitive details, by only showing their
-/// element type and length. Also available as the [`TypeNameMap`] alias.
+/// This type holds no data, and is only used for formatting. It can be used to summarize large
+/// sets or maps, or hide sensitive details, by only showing their element type and length.
+///
+/// Also available as the [`TypeNameMap`] alias.
 ///
 /// # Example
 ///
@@ -15,11 +19,9 @@ use crate::types::{DisplayMode, TypeName};
 ///
 /// let short = TypeNameSet::<u8, Short>::new(100);
 /// assert_eq!(format!("{:?}", short), "{<u8>: 100}");
-/// assert_eq!(format!("{}", short), "{<u8>: 100}");
 ///
 /// let full = TypeNameSet::<Vec<u8>, Full>::new(100);
 /// assert_eq!(format!("{:?}", full), "{<alloc::vec::Vec<u8>>: 100}");
-/// assert_eq!(format!("{}", full), "{<alloc::vec::Vec<u8>>: 100}");
 /// ```
 pub struct TypeNameSet<T, M>(usize, PhantomData<(T, M)>);
 
@@ -28,8 +30,9 @@ pub struct TypeNameSet<T, M>(usize, PhantomData<(T, M)>);
 /// # Examples
 ///
 /// ```rust
-/// # use display_as_debug::types::{TypeNameMap, Short};
-/// # use std::collections::HashMap;
+/// use display_as_debug::types::{TypeNameMap, Short};
+/// use std::collections::HashMap;
+///
 /// let map: HashMap<&str, i32> = [("a", 1), ("b", 2)].into_iter().collect();
 /// assert_eq!(
 ///     format!("{:?}", TypeNameMap::<(&str, i32), Short>::of(&map)),
@@ -55,8 +58,9 @@ impl<T, M> TypeNameSet<T, M> {
     /// # Example
     ///
     /// ```rust
-    /// # use display_as_debug::types::{TypeNameSet, Short};
-    /// # use std::collections::HashSet;
+    /// use display_as_debug::types::{TypeNameSet, Short};
+    /// use std::collections::HashSet;
+    ///
     /// let items: HashSet<u8> = [1, 2, 3, 4, 5].into_iter().collect();
     /// assert_eq!(format!("{:?}", TypeNameSet::<u8, Short>::of(&items)), "{<u8>: 5}");
     /// ```
@@ -75,13 +79,7 @@ impl<T, M> TypeNameSet<T, M> {
 
 impl<T, M: DisplayMode> Debug for TypeNameSet<T, M> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "{{<{}>: {}}}", TypeName::empty::<T, M>(), self.0)
-    }
-}
-
-impl<T, M: DisplayMode> Display for TypeNameSet<T, M> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        Debug::fmt(self, f)
+        write!(f, "{{<{:?}>: {}}}", TypeName::empty::<T, M>(), self.0)
     }
 }
 

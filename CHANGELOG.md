@@ -88,6 +88,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     TypeNameResult::<_, _, Full>::new(some_result)
     ```
 
+- **BREAKING**: `TypeName`, `TypeNameList`, and `TypeNameSet` no longer implement `Display`. Use `{:?}` (Debug format) instead of `{}` (Display format).
+
 ## [0.4.0] - 01/14/2026
 
 ### Added
