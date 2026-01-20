@@ -1,10 +1,9 @@
 use core::fmt::{Debug, Formatter};
-use core::marker::PhantomData;
 
 use derive_more::{AsMut, AsRef, Deref};
 
 use crate::fmt::DebugTupleExt;
-use crate::types::{DisplayMode, Short, TypeName};
+use crate::types::{DisplayMode, Short, TypeName, TypeNameMarker};
 use crate::wrap::option::{STR_NONE, STR_SOME};
 
 /// A [`Option<T>`] wrapper that implements [`Debug`], displaying type names instead of values.
@@ -31,15 +30,14 @@ pub struct TypeNameOption<T, D: ?Sized = T, M: DisplayMode = Short>(
     #[as_ref]
     #[as_mut]
     pub Option<T>,
-    PhantomData<M>,
-    PhantomData<D>,
+    pub TypeNameMarker<D, M>,
 );
 
 impl<T> TypeNameOption<T> {
     /// Create a new `TypeNameOption` wrapper.
     #[must_use]
     pub const fn new<M: DisplayMode>(option: Option<T>) -> TypeNameOption<T, T, M> {
-        TypeNameOption(option, PhantomData, PhantomData)
+        TypeNameOption(option, TypeName::empty())
     }
 
     /// Create a new `TypeNameOption` wrapper that borrows the value but displays the inner type name.
@@ -56,7 +54,7 @@ impl<T> TypeNameOption<T> {
     /// ```
     #[must_use]
     pub const fn borrowed<M: DisplayMode>(option: &Option<T>) -> TypeNameOption<&T, T, M> {
-        TypeNameOption(option.as_ref(), PhantomData, PhantomData)
+        TypeNameOption(option.as_ref(), TypeName::empty())
     }
 }
 
@@ -74,6 +72,6 @@ where
 
 impl<T, D: ?Sized, M: DisplayMode> From<Option<T>> for TypeNameOption<T, D, M> {
     fn from(option: Option<T>) -> Self {
-        Self(option, PhantomData, PhantomData)
+        Self(option, TypeName::empty())
     }
 }

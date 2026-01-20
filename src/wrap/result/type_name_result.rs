@@ -1,9 +1,9 @@
 use core::fmt::{Debug, Formatter};
-use core::marker::PhantomData;
 
 use derive_more::{AsMut, AsRef, Deref};
 
-use crate::types::{DisplayMode, Full, TypeName};
+use crate::fmt::DebugTupleExt;
+use crate::types::{DisplayMode, Full, TypeName, TypeNameMarker};
 use crate::wrap::result::{STR_ERR, STR_OK};
 
 /// A [`Result<T, E>`] wrapper that implements [`Debug`], displaying type names instead of values.
@@ -13,6 +13,14 @@ use crate::wrap::result::{STR_ERR, STR_OK};
 ///
 /// The `M` type parameter controls whether [`Full`](crate::types::Full) or [`Short`](crate::types::Short)
 /// type names are displayed.
+///
+/// # Type Parameters
+///
+/// - `T`: The type of the value in the [`Ok`] variant.
+/// - `E`: The type of the value in the [`Err`] variant.
+/// - `D`: The type that is displayed in the [`Ok`] variant.
+///   - Used internally to display the type name as `T` when borrowing a [`Result`].
+/// - `M`: The display mode for the type name.
 ///
 /// # Examples
 ///
@@ -31,21 +39,20 @@ pub struct TypeNameResult<T, E, D: ?Sized = T, M: DisplayMode = Full>(
     #[as_ref]
     #[as_mut]
     pub Result<T, E>,
-    PhantomData<M>,
-    PhantomData<D>,
+    pub TypeNameMarker<D, M>,
 );
 
 impl<T, E> TypeNameResult<T, E> {
     /// Create a new `TypeNameResult` wrapper.
     #[must_use]
     pub const fn new<M: DisplayMode>(result: Result<T, E>) -> TypeNameResult<T, E, T, M> {
-        TypeNameResult(result, PhantomData, PhantomData)
+        TypeNameResult(result, TypeName::empty())
     }
 
     /// Create a new `TypeNameResult` wrapper that borrows the value but displays the inner type name.
     #[must_use]
     pub const fn borrowed<M: DisplayMode>(result: &Result<T, E>) -> TypeNameResult<&T, &E, T, M> {
-        TypeNameResult(result.as_ref(), PhantomData, PhantomData)
+        TypeNameResult(result.as_ref(), TypeName::empty())
     }
 }
 
@@ -55,7 +62,7 @@ where
 {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         match &self.0 {
-            Ok(_) => f.debug_tuple(STR_OK).field(&TypeName::empty::<D, M>()).finish(),
+            Ok(_) => f.debug_tuple(STR_OK).field_type::<D, M>().finish(),
             Err(e) => f.debug_tuple(STR_ERR).field(e).finish(),
         }
     }
@@ -63,6 +70,6 @@ where
 
 impl<T, E, D: ?Sized, M: DisplayMode> From<Result<T, E>> for TypeNameResult<T, E, D, M> {
     fn from(result: Result<T, E>) -> Self {
-        Self(result, PhantomData, PhantomData)
+        Self(result, TypeName::empty())
     }
 }

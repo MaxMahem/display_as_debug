@@ -7,7 +7,7 @@ mod type_name;
 pub use crate::wrap::Opaque;
 pub use opaque::{OpaqueList, OpaqueMap, OpaqueSet};
 pub use test_value::TestValue;
-pub use type_name::{DisplayMode, Full, Short, TypeName, TypeNameList, TypeNameMap, TypeNameSet};
+pub use type_name::{DisplayMode, Full, Short, TypeName, TypeNameList, TypeNameMap, TypeNameMarker, TypeNameSet};
 
 /// An obscure marker value that formats as `..` when used in [`Debug`](core::fmt::Debug) or [`Display`](core::fmt::Display).
 ///

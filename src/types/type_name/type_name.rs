@@ -34,7 +34,7 @@ impl TypeName {
     /// assert_eq!(format!("{short:?}"), "Vec<i32>");
     /// ```
     #[must_use]
-    pub fn empty<T: ?Sized, M: DisplayMode>() -> TypeNameMarker<T, M> {
+    pub const fn empty<T: ?Sized, M: DisplayMode>() -> TypeNameMarker<T, M> {
         TypeName(PhantomData, PhantomData)
     }
 }
