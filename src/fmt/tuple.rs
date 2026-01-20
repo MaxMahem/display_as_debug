@@ -53,9 +53,7 @@ pub trait DebugTupleExt {
     ///
     /// assert_eq!(format!("{:?}", container), "Container(alloc::vec::Vec<i32>, Vec<i32>)");
     /// ```
-    fn field_type<T, M: DisplayMode>(&mut self) -> &mut Self
-    where
-        TypeName<T, M>: Debug;
+    fn field_type<T: ?Sized, M: DisplayMode>(&mut self) -> &mut Self;
 
     /// Adds a field with an obscured value, showing `".."` for privacy.
     ///
@@ -84,7 +82,7 @@ impl DebugTupleExt for DebugTuple<'_, '_> {
         self.field(&DisplayAsDebug(value))
     }
 
-    fn field_type<T, M: DisplayMode>(&mut self) -> &mut Self
+    fn field_type<T: ?Sized, M: DisplayMode>(&mut self) -> &mut Self
     where
         TypeName<T, M>: Debug,
     {

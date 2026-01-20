@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- **TypeNameOption/TypeNameResult generic `D`**: Added `D` generic parameter (defaulting to `T`) to allow displaying a type different from the wrapped type.
+- **`borrowed()` constructor**: Added `TypeNameOption::borrowed()` and `TypeNameResult::borrowed()` to create wrappers for borrowed values that display the underlying value type.
+
 ## [0.5.0] - 01/19/2026
 
 ### Added

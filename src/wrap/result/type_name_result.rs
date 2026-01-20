@@ -26,36 +26,43 @@ use crate::wrap::result::{STR_ERR, STR_OK};
 /// assert_eq!(format!("{:?}", TypeNameResult::new::<Full>(err)), r#"Err("error")"#);
 /// ```
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Deref, AsRef, AsMut)]
-pub struct TypeNameResult<T, E, M: DisplayMode = Full>(
+pub struct TypeNameResult<T, E, D: ?Sized = T, M: DisplayMode = Full>(
     #[deref]
     #[as_ref]
     #[as_mut]
     pub Result<T, E>,
     PhantomData<M>,
+    PhantomData<D>,
 );
 
 impl<T, E> TypeNameResult<T, E> {
     /// Create a new `TypeNameResult` wrapper.
     #[must_use]
-    pub const fn new<M: DisplayMode>(result: Result<T, E>) -> TypeNameResult<T, E, M> {
-        TypeNameResult(result, PhantomData)
+    pub const fn new<M: DisplayMode>(result: Result<T, E>) -> TypeNameResult<T, E, T, M> {
+        TypeNameResult(result, PhantomData, PhantomData)
+    }
+
+    /// Create a new `TypeNameResult` wrapper that borrows the value but displays the inner type name.
+    #[must_use]
+    pub const fn borrowed<M: DisplayMode>(result: &Result<T, E>) -> TypeNameResult<&T, &E, T, M> {
+        TypeNameResult(result.as_ref(), PhantomData, PhantomData)
     }
 }
 
-impl<T, E: Debug, M: DisplayMode> Debug for TypeNameResult<T, E, M>
+impl<T, E: Debug, D: ?Sized, M: DisplayMode> Debug for TypeNameResult<T, E, D, M>
 where
-    TypeName<T, M>: Debug,
+    TypeName<D, M>: Debug,
 {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         match &self.0 {
-            Ok(_) => f.debug_tuple(STR_OK).field(&TypeName::empty::<T, M>()).finish(),
+            Ok(_) => f.debug_tuple(STR_OK).field(&TypeName::empty::<D, M>()).finish(),
             Err(e) => f.debug_tuple(STR_ERR).field(e).finish(),
         }
     }
 }
 
-impl<T, E, M: DisplayMode> From<Result<T, E>> for TypeNameResult<T, E, M> {
+impl<T, E, D: ?Sized, M: DisplayMode> From<Result<T, E>> for TypeNameResult<T, E, D, M> {
     fn from(result: Result<T, E>) -> Self {
-        Self(result, PhantomData)
+        Self(result, PhantomData, PhantomData)
     }
 }

@@ -10,4 +10,5 @@ test_fmt!(none_full, TypeNameOption::new::<Full>(None::<i32>), "{:?}", EXPECTED_
 test_fmt!(none_short, TypeNameOption::new::<Short>(None::<i32>), "{:?}", EXPECTED_NONE);
 test_fmt!(some_full, TypeNameOption::new::<Full>(Some(vec![1])), "{:?}", EXPECTED_SOME_FULL);
 test_fmt!(some_short, TypeNameOption::new::<Short>(Some(vec![1])), "{:?}", EXPECTED_SOME_SHORT);
-test_fmt!(from, TypeNameOption::<Vec<i32>, Full>::from(Some(vec![1])), "{:?}", EXPECTED_SOME_FULL);
+test_fmt!(from, TypeNameOption::<Vec<i32>, Vec<i32>, Full>::from(Some(vec![1])), "{:?}", EXPECTED_SOME_FULL);
+test_fmt!(borrow, TypeNameOption::borrowed::<Full>(&Some(vec![1])), "{:?}", EXPECTED_SOME_FULL);
