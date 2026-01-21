@@ -8,7 +8,8 @@ pub use crate::wrap::Opaque;
 pub use opaque::{OpaqueList, OpaqueMap, OpaqueSet};
 pub use test_value::TestValue;
 pub use type_name::{
-    DisplayMode, Full, Short, TypeName, TypeNameList, TypeNameMap, TypeNameMarker, TypeNameOption, TypeNameSet,
+    DisplayMode, Full, Short, TypeName, TypeNameList, TypeNameMap, TypeNameMarker, TypeNameOption, TypeNameResult,
+    TypeNameSet,
 };
 
 /// An obscure marker value that formats as `..` when used in [`Debug`](core::fmt::Debug) or [`Display`](core::fmt::Display).

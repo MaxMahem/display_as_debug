@@ -20,6 +20,31 @@ use crate::wrap::option::{STR_NONE, STR_SOME};
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, From, Deref, AsRef, AsMut)]
 pub struct OpaqueOption<T>(pub Option<T>);
 
+/// An alias for an empty [`OpaqueOption`] that is used as an empty marker/[`Debug`] only type.
+pub type OpaqueOptionMarker = OpaqueOption<()>;
+
+impl OpaqueOption<()> {
+    /// An empty marker constant for [`Some`] state.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use display_as_debug::wrap::OpaqueOption;
+    /// assert_eq!(format!("{:?}", OpaqueOption::SOME), "Some(..)");
+    /// ```
+    pub const SOME: Self = Self(Some(()));
+
+    /// An empty marker constant for [`None`] state.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use display_as_debug::wrap::OpaqueOption;
+    /// assert_eq!(format!("{:?}", OpaqueOption::NONE), "None");
+    /// ```
+    pub const NONE: Self = Self(None);
+}
+
 impl<T> OpaqueOption<T> {
     /// Create a new [`OpaqueOption`] wrapper that borrows the wrapped value.
     ///

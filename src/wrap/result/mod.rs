@@ -6,5 +6,5 @@ mod type_name;
 const STR_ERR: &str = "Err";
 const STR_OK: &str = "Ok";
 
-pub use opaque::OpaqueResult;
+pub use opaque::{OpaqueResult, OpaqueResultMarker};
 pub use type_name::TypeNameResult;

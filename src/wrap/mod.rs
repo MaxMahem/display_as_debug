@@ -11,6 +11,6 @@ pub use crate::types::{DisplayMode, Full, Short};
 pub use debug_as_display::DebugAsDisplay;
 pub use display_as_debug::DisplayAsDebug;
 pub use opaque::Opaque;
-pub use option::{OpaqueOption, TypeNameOption};
-pub use result::{OpaqueResult, TypeNameResult};
+pub use option::{OpaqueOption, OpaqueOptionMarker, TypeNameOption};
+pub use result::{OpaqueResult, OpaqueResultMarker, TypeNameResult};
 pub use type_name::TypeName;

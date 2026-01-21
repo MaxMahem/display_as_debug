@@ -20,6 +20,25 @@ use crate::wrap::result::{STR_ERR, STR_OK};
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, From, Deref, AsRef, AsMut)]
 pub struct OpaqueResult<T, E>(pub Result<T, E>);
 
+/// An alias for an empty [`OpaqueResult`] in the [`Ok`] state that is used as an empty
+/// marker/[`Debug`] only type.
+///
+/// Note, that because the [`Err`] variant of [`OpaqueResult`] is not empty
+/// (it displays the error value), a marker type can only represent the [`Ok`] variant.
+pub type OpaqueResultMarker = OpaqueResult<(), ()>;
+
+impl OpaqueResult<(), ()> {
+    /// An empty marker constant for [`Ok`] state.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use display_as_debug::wrap::OpaqueResult;
+    /// assert_eq!(format!("{:?}", OpaqueResult::OK), "Ok(..)");
+    /// ```
+    pub const OK: Self = Self(Ok(()));
+}
+
 impl<T, E> OpaqueResult<T, E> {
     /// Create a new [`OpaqueResult`] wrapper that borrows the wrapped value.
     ///

@@ -6,5 +6,5 @@ mod type_name;
 const STR_NONE: &str = "None";
 const STR_SOME: &str = "Some";
 
-pub use opaque::OpaqueOption;
+pub use opaque::{OpaqueOption, OpaqueOptionMarker};
 pub use type_name::TypeNameOption;

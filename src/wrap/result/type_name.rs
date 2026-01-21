@@ -39,12 +39,12 @@ use crate::wrap::result::{STR_ERR, STR_OK};
 /// assert_eq!(format!("{:?}", TypeNameResult::new::<Full>(err)), r#"Err("error")"#);
 /// ```
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Deref, AsRef, AsMut, Into)]
-pub struct TypeNameResult<T, E, D: ?Sized = T, M: DisplayMode = Full>(
+pub struct TypeNameResult<T, E = (), D: ?Sized = T, M: DisplayMode = Full>(
     #[deref]
     #[as_ref]
     #[as_mut]
     pub Result<T, E>,
-    #[into(ignore)] TypeNameMarker<D, M>,
+    #[into(ignore)] pub(crate) TypeNameMarker<D, M>,
 );
 
 impl<T, E> TypeNameResult<T, E> {
@@ -83,22 +83,6 @@ impl<T, E> TypeNameResult<T, E> {
     pub const fn borrow<M: DisplayMode>(result: &Result<T, E>) -> TypeNameResult<&T, &E, T, M> {
         TypeNameResult(result.as_ref(), TypeName::empty())
     }
-
-    /// Consumes the wrapper, returning the inner value.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use display_as_debug::wrap::TypeNameResult;
-    /// # use display_as_debug::types::{Short};
-    /// let result = Ok::<_, &str>(vec![1]);
-    /// let wrapper = TypeNameResult::new::<Short>(result);
-    /// assert_eq!(wrapper.into_inner(), Ok(vec![1]));
-    /// ```
-    #[allow(clippy::missing_errors_doc, reason = "Unwrapping a result, not returning an error")]
-    pub fn into_inner(self) -> Result<T, E> {
-        self.0
-    }
 }
 
 impl<T, E: Debug, D: ?Sized, M: DisplayMode> Debug for TypeNameResult<T, E, D, M>
@@ -116,5 +100,20 @@ where
 impl<T, E, D: ?Sized, M: DisplayMode> From<Result<T, E>> for TypeNameResult<T, E, D, M> {
     fn from(result: Result<T, E>) -> Self {
         Self(result, TypeName::empty())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::wrap::Short;
+
+    use super::*;
+
+    #[test]
+    fn into() {
+        let result = Ok::<_, &str>(1);
+        let wrapper = TypeNameResult::new::<Short>(result);
+        let result: Result<i32, &str> = wrapper.into();
+        assert_eq!(result, Ok(1));
     }
 }
