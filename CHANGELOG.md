@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.5.1] - 01/21/2026
 
 - **TypeNameOption/TypeNameResult generic `D`**: Added `D` generic parameter (defaulting to `T`) to allow displaying a type different from the wrapped type.
 - **`borrowed()` constructor**: Added `TypeNameOption::borrowed()` and `TypeNameResult::borrowed()` to create wrappers for borrowed values that display the underlying value type.
