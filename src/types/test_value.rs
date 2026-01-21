@@ -2,8 +2,8 @@ use core::fmt::{self, Debug, Display};
 
 /// A test type that prints differently for [`Display`] and [`Debug`].
 ///
-/// Shows `Display(value)` for [`Display`] and `Debug(value)` for [`Debug`], where value is the
-/// debug representation of the inner value.
+/// Shows `Display(value)` for [`Display`] and `Debug(value)` for [`Debug`],
+/// where value is the debug representation of the inner value.
 ///
 /// # Examples
 ///
@@ -19,11 +19,27 @@ pub struct TestValue<T = ()>(pub T);
 
 impl TestValue<()> {
     /// The default value for [`TestValue`].
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use display_as_debug::types::TestValue;
+    /// assert_eq!(format!("{}", TestValue::DEFAULT), "Display(())");
+    /// assert_eq!(format!("{:?}", TestValue::DEFAULT), "Debug(())");
+    /// ```
     pub const DEFAULT: Self = Self(());
 }
 
 impl TestValue<&'static str> {
     /// A test value with a string for use in examples.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use display_as_debug::types::TestValue;
+    /// assert_eq!(format!("{}", TestValue::TEST), r#"Display("test")"#);
+    /// assert_eq!(format!("{:?}", TestValue::TEST), r#"Debug("test")"#);
+    /// ```
     pub const TEST: Self = Self("test");
 }
 

@@ -9,18 +9,18 @@ use derive_more::{AsMut, AsRef, Deref, From};
 /// # Examples
 ///
 /// ```rust
-/// use display_as_debug::wrap::DisplayAsDebug;
-/// use display_as_debug::types::TestValue;
-///
-/// assert_eq!(format!("{:?}", DisplayAsDebug(&TestValue::TEST)), r#"Display("test")"#, "display used for debug");
-/// assert_eq!(format!("{}", DisplayAsDebug(&TestValue::TEST)), r#"Display("test")"#, "display unchanged");
+/// # use display_as_debug::wrap::DisplayAsDebug;
+/// # use display_as_debug::types::TestValue;
+/// let test = TestValue::TEST;
+/// assert_eq!(format!("{:?}", DisplayAsDebug(&test)), r#"Display("test")"#);
+/// assert_eq!(format!("{}", DisplayAsDebug(&test)), r#"Display("test")"#);
 /// ```
 ///
 /// # Notable Trait Implementations
 ///
 /// - **[`Debug`]**: Uses the wrapped value's [`Display`] implementation
 /// - **[`Display`]**: Forwards to the wrapped value's [`Display`] implementation
-/// - **[`Error`]**: Implements [`Error`] if the wrapped type implements both [`Display`] and [`Error`]
+/// - **[`Error`]**: Implements [`Error`] if the wrapped type implements [`Display`] and [`Error`]
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, From, Deref, AsRef, AsMut)]
 pub struct DisplayAsDebug<T>(pub T);
 

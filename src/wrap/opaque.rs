@@ -14,16 +14,20 @@ use derive_more::{AsMut, AsRef, Deref, From};
 /// # use display_as_debug::wrap::Opaque;
 /// # use display_as_debug::types::OPAQUE;
 /// assert_eq!(format!("{:?}", OPAQUE), "..", "Debug format should be opaque");
-/// assert_eq!(format!("{}", OPAQUE), "..", "Display format should be opaque");
-///
-/// assert_eq!(format!("{:?}", Opaque("secret")), "..", "Debug format should be opaque");
-/// assert_eq!(format!("{}", Opaque("secret")), "..", "Display format should be opaque");
-/// ```
-#[derive(Copy, Clone, Deref, From, AsMut, AsRef, Default)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Deref, From, AsMut, AsRef, Default)]
 pub struct Opaque<T = ()>(pub T);
 
 impl Opaque<()> {
     /// The default value for [`Opaque`]
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use display_as_debug::wrap::Opaque;
+    /// assert_eq!(Opaque::DEFAULT, Opaque(()));
+    /// assert_eq!(format!("{:?}", Opaque::DEFAULT), "..", "Debug format should be opaque");
+    /// assert_eq!(format!("{}", Opaque::DEFAULT), "..", "Display format should be opaque");
+    /// ```
     pub const DEFAULT: Self = Self(());
 }
 

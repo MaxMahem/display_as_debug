@@ -7,7 +7,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.5.1] - 01/21/2026
+
+- **TypeNameOption/TypeNameResult generic `D`**: Added `D` generic parameter (defaulting to `T`) to allow displaying a type different from the wrapped type.
+- **`borrowed()` constructor**: Added `TypeNameOption::borrowed()` and `TypeNameResult::borrowed()` to create wrappers for borrowed values that display the underlying value type.
+- **`TypeNameOptionMarker` alias**: Alias for `TypeNameOption` configured as a marker.
+  - Added `TypeNameOption::empty()` to create markers relative to an `Option` reference.
+  - Added `NONE` and `SOME` constants for creating static markers.
+- **`TypeNameResultMarker` alias**: Alias for `TypeNameMarker` configured as a marker.
+  - Added `TypeNameResult::ok_empty()` to create empty `Ok` markers.
+  - Added `OK_FULL` and `OK_SHORT` constants for creating static markers.
+- **`OpaqueOptionMarker` alias**: Alias for `OpaqueOption<()>` for use as a debug-only marker type.
+  - Added `OpaqueOption::SOME` and `OpaqueOption::NONE` constants.
+- **`OpaqueResultMarker` alias**: Alias for `OpaqueResult<(), ()>` for use as a debug-only marker type.
+  - Added `OpaqueResult::OK` constant.
 
 ## [0.5.0] - 01/19/2026
 

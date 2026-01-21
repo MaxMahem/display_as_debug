@@ -10,14 +10,14 @@ use derive_more::{AsMut, AsRef, Deref, From};
 ///
 /// ```rust
 /// # use display_as_debug::wrap::DebugAsDisplay;
-/// assert_eq!(format!("{}", DebugAsDisplay(&vec![1])), "[1]", "debug used for display");
-/// assert_eq!(format!("{:?}", DebugAsDisplay(&vec![1])), "[1]", "debug unchanged");
+/// assert_eq!(format!("{}", DebugAsDisplay(&vec![1])), "[1]");
+/// assert_eq!(format!("{:?}", DebugAsDisplay(&vec![1])), "[1]");
 /// ```
 /// # Noteable Trait Implementations
 ///
 /// - **[`Display`]**: Uses the wrapped value's [`Debug`] implementation
 /// - **[`Debug`]**: Forwards to the wrapped value's [`Debug`] implementation
-/// - **[`Error`]**: Implements [`Error`] if the wrapped type implements both [`Debug`] and [`Error`]
+/// - **[`Error`]**: Implements [`Error`] if the wrapped type implements [`Debug`] and [`Error`]
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, From, Deref, AsRef, AsMut)]
 pub struct DebugAsDisplay<T>(pub T);
 

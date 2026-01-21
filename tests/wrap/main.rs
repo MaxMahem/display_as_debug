@@ -8,3 +8,4 @@ mod display_as_debug;
 mod opaque;
 mod option;
 mod result;
+mod type_name;
