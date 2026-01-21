@@ -16,13 +16,25 @@ use crate::wrap::result::{STR_ERR, STR_OK};
 /// # use display_as_debug::wrap::OpaqueResult;
 /// assert_eq!(format!("{:?}", OpaqueResult(Ok::<_, &str>(42))), "Ok(..)");
 /// assert_eq!(format!("{:?}", OpaqueResult(Err::<i32, &str>("fail"))), r#"Err("fail")"#);
-///
-/// // Borrowed usage via as_ref()
-/// let res: Result<&str, &str> = Ok("secret");
-/// assert_eq!(format!("{:?}", OpaqueResult(res.as_ref().map(|_| ()))), "Ok(..)");
 /// ```
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, From, Deref, AsRef, AsMut)]
 pub struct OpaqueResult<T, E>(pub Result<T, E>);
+
+impl<T, E> OpaqueResult<T, E> {
+    /// Create a new [`OpaqueResult`] wrapper that borrows the wrapped value.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use display_as_debug::wrap::OpaqueResult;
+    /// let res: Result<&str, &str> = Ok("secret");
+    /// assert_eq!(format!("{:?}", OpaqueResult::borrow(&res)), "Ok(..)");
+    /// ```
+    #[must_use]
+    pub const fn borrow(option: &Result<T, E>) -> OpaqueResult<&T, &E> {
+        OpaqueResult(option.as_ref())
+    }
+}
 
 impl<T, E: Debug> Debug for OpaqueResult<T, E> {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {

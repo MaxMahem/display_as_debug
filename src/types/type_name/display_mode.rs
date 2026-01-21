@@ -2,6 +2,17 @@
 #[sealed::sealed]
 pub trait DisplayMode {
     /// Returns the type name for the given type according to this display mode.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use display_as_debug::types::{DisplayMode, Full, Short};
+    /// let full_name = Full::type_name::<Vec<i32>>();
+    /// assert_eq!(full_name, "alloc::vec::Vec<i32>");
+    ///
+    /// let short_name = Short::type_name::<Vec<i32>>();
+    /// assert_eq!(short_name, "Vec<i32>");
+    /// ```
     fn type_name<T: ?Sized>() -> &'static str;
 }
 

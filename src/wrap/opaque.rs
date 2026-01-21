@@ -24,6 +24,15 @@ pub struct Opaque<T = ()>(pub T);
 
 impl Opaque<()> {
     /// The default value for [`Opaque`]
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use display_as_debug::wrap::Opaque;
+    /// assert_eq!(Opaque::DEFAULT, Opaque(()));
+    /// assert_eq!(format!("{:?}", Opaque::DEFAULT), "..", "Debug format should be opaque");
+    /// assert_eq!(format!("{}", Opaque::DEFAULT), "..", "Display format should be opaque");
+    /// ```
     pub const DEFAULT: Self = Self(());
 }
 

@@ -1,6 +1,7 @@
 //! Integration tests for TypeNameSet
 
 use crate::common::*;
+
 use display_as_debug::types::TypeNameSet;
 
 mod short {

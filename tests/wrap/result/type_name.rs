@@ -11,4 +11,4 @@ test_fmt!(ok_short, TypeNameResult::new::<Short>(Ok::<Vec<i32>, i32>(vec![])), "
 test_fmt!(err_full, TypeNameResult::new::<Full>(Err::<Vec<i32>, i32>(42)), "{:?}", EXPECTED_ERR);
 test_fmt!(err_short, TypeNameResult::new::<Short>(Err::<Vec<i32>, i32>(42)), "{:?}", EXPECTED_ERR);
 test_fmt!(from, TypeNameResult::<Vec<i32>, i32, Vec<i32>, Full>::from(Ok(vec![])), "{:?}", EXPECTED_OK_FULL);
-test_fmt!(borrow, TypeNameResult::borrowed::<Full>(&Ok::<Vec<i32>, i32>(vec![])), "{:?}", EXPECTED_OK_FULL);
+test_fmt!(borrow, TypeNameResult::borrow::<Full>(&Ok::<Vec<i32>, i32>(vec![])), "{:?}", EXPECTED_OK_FULL);

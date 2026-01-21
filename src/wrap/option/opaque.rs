@@ -20,6 +20,22 @@ use crate::wrap::option::{STR_NONE, STR_SOME};
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, From, Deref, AsRef, AsMut)]
 pub struct OpaqueOption<T>(pub Option<T>);
 
+impl<T> OpaqueOption<T> {
+    /// Create a new [`OpaqueOption`] wrapper that borrows the wrapped value.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use display_as_debug::wrap::OpaqueOption;
+    /// let option = Some("secret");
+    /// assert_eq!(format!("{:?}", OpaqueOption::borrow(&option)), "Some(..)");
+    /// ```
+    #[must_use]
+    pub const fn borrow(option: &Option<T>) -> OpaqueOption<&T> {
+        OpaqueOption(option.as_ref())
+    }
+}
+
 impl<T> Debug for OpaqueOption<T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         match &self.0 {

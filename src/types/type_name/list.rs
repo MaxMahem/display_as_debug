@@ -13,8 +13,7 @@ use crate::types::{DisplayMode, TypeName};
 /// # Examples
 ///
 /// ```rust
-/// use display_as_debug::types::{TypeNameList, Short, Full};
-///
+/// # use display_as_debug::types::{TypeNameList, Short, Full};
 /// let short = TypeNameList::<u8, Short>::new(100);
 /// assert_eq!(format!("{:?}", short), "[<u8>: 100]");
 ///
@@ -25,6 +24,14 @@ pub struct TypeNameList<T, M>(usize, PhantomData<(T, M)>);
 
 impl<T, M> TypeNameList<T, M> {
     /// Creates a new [`TypeNameList`] with the given `count`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use display_as_debug::types::{TypeNameList, Short};
+    /// let list = TypeNameList::<u8, Short>::new(100);
+    /// assert_eq!(format!("{:?}", list), "[<u8>: 100]");
+    /// ```
     #[must_use]
     pub const fn new(count: usize) -> Self {
         Self(count, PhantomData)
@@ -37,10 +44,8 @@ impl<T, M> TypeNameList<T, M> {
     /// ```rust
     /// # use display_as_debug::types::{TypeNameList, Short};
     /// let items = vec![1u8, 2, 3, 4, 5];
-    /// assert_eq!(
-    ///     format!("{:?}", TypeNameList::<u8, Short>::of(&items)),
-    ///     "[<u8>: 5]"
-    /// );
+    /// let list = TypeNameList::<u8, Short>::of(&items);
+    /// assert_eq!(format!("{:?}", list), "[<u8>: 5]");
     /// ```
     #[must_use]
     pub fn of<I: IntoIterator<IntoIter: ExactSizeIterator>>(iter: I) -> Self {
@@ -48,6 +53,14 @@ impl<T, M> TypeNameList<T, M> {
     }
 
     /// Returns the descriptive length of the list.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use display_as_debug::types::{TypeNameList, Short};
+    /// let list = TypeNameList::<u8, Short>::new(100);
+    /// assert_eq!(list.len(), 100, "Length should match constructed length");
+    /// ```
     #[must_use]
     #[allow(clippy::len_without_is_empty, reason = "This type holds no values")]
     pub const fn len(&self) -> usize {
